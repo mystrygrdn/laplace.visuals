@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, ArrowUpRight } from 'lucide-react';
-import MagneticButton from './MagneticButton';
+import { Menu, X } from 'lucide-react';
+import laplaceLogo from '../assets/laplacelogo.webp';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,31 +11,36 @@ export default function Navbar() {
     { name: 'Portfolio', path: '/portfolio' },
     { name: 'Events', path: '/events' },
     { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' },
   ];
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-50 bg-bgPrimary/70 backdrop-blur-md border-b border-white/5 py-5 px-6 md:px-12 flex justify-between items-center transition-all duration-300">
-        {/* LOGO */}
-        <NavLink 
-          to="/" 
-          className="font-syne text-xl md:text-2xl font-extrabold tracking-wider text-textPrimary hover:text-accentPrimary transition-colors duration-300"
+      <nav className="fixed top-0 left-0 w-full z-50 bg-bgPrimary py-3 px-6 md:px-12 flex justify-between items-center transition-all duration-300">
+        {/* LOGO — far left */}
+        <NavLink
+          to="/"
+          className="flex items-center"
           onClick={() => setIsOpen(false)}
         >
-          LAPLACE<span className="text-accentPrimary">.</span>
+          <img
+            src={laplaceLogo}
+            alt="Laplace Visuals"
+            className="h-14 md:h-16 w-auto object-contain invert"
+          />
         </NavLink>
 
-        {/* DESKTOP NAV LINKS */}
-        <div className="hidden md:flex items-center space-x-10">
+        {/* DESKTOP NAV LINKS — clustered together, far right */}
+        <div className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
             <NavLink
               key={link.path}
               to={link.path}
-              className={({ isActive }) => 
-                `relative font-medium tracking-wide uppercase text-sm transition-colors duration-300 ${
-                  isActive 
-                    ? 'text-accentPrimary font-semibold' 
-                    : 'text-textSecondary hover:text-textPrimary'
+              className={({ isActive }) =>
+                `relative text-sm font-bold tracking-wide transition-colors duration-300 ${
+                  isActive
+                    ? 'text-accentPrimary'
+                    : 'text-textPrimary hover:text-accentPrimary'
                 }`
               }
             >
@@ -51,17 +56,8 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* DESKTOP CONTACT BUTTON (MAGNETIC) */}
-        <div className="hidden md:block">
-          <NavLink to="/contact">
-            <MagneticButton className="border border-accentPrimary/50 hover:border-accentPrimary hover:bg-accentPrimary/10 transition-colors duration-300 px-6 py-2.5 rounded-full font-syne text-xs uppercase tracking-widest text-textPrimary flex items-center gap-1">
-              Let's Shoot <ArrowUpRight className="w-3.5 h-3.5" />
-            </MagneticButton>
-          </NavLink>
-        </div>
-
         {/* MOBILE BURGER ICON */}
-        <button 
+        <button
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden text-textPrimary hover:text-accentPrimary transition-colors duration-300"
           aria-label="Toggle Menu"
@@ -80,8 +76,8 @@ export default function Navbar() {
               key={link.path}
               to={link.path}
               onClick={() => setIsOpen(false)}
-              className={({ isActive }) => 
-                `font-syne text-3xl font-bold tracking-wide transition-colors duration-300 ${
+              className={({ isActive }) =>
+                `font-display text-3xl transition-colors duration-300 ${
                   isActive ? 'text-accentPrimary' : 'text-textPrimary hover:text-accentPrimary'
                 }`
               }
@@ -89,15 +85,6 @@ export default function Navbar() {
               {link.name}
             </NavLink>
           ))}
-          <NavLink
-            to="/contact"
-            onClick={() => setIsOpen(false)}
-            className="mt-6"
-          >
-            <button className="border-2 border-accentPrimary text-bgPrimary bg-accentPrimary font-syne font-bold uppercase tracking-widest px-8 py-3.5 rounded-full flex items-center gap-2 hover:bg-transparent hover:text-accentPrimary transition-all duration-300">
-              CONTACT US <ArrowUpRight className="w-4.5 h-4.5" />
-            </button>
-          </NavLink>
         </div>
       </div>
     </>

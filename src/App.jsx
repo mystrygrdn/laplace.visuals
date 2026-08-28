@@ -73,17 +73,19 @@ export default function App() {
 
       <ReactLenis root options={{ lerp: 0.08, duration: 1.2, smoothWheel: true }}>
         <ScrollToTop />
-        
-        {/* Film Grain Texture Overlay */}
-        <div className="grain" />
 
-        {/* Custom Cursor Dot & Ring */}
-        <CustomCursor />
+        {/* Film Grain Texture Overlay — only after preloader is done, so it
+            doesn't compete with the preloader video for GPU/compositing */}
+        {!isLoading && <div className="grain" />}
+
+        {/* Custom Cursor Dot & Ring — same reason: avoid mousemove-driven
+            re-renders fighting with the video during the preloader */}
+        {!isLoading && <CustomCursor />}
 
         <div className="flex flex-col min-h-screen">
           {/* Header Navigation */}
           <Navbar />
-          
+
           {/* Animated Page Layout Wrapper */}
           <main className="flex-grow">
             <AnimatePresence mode="wait">

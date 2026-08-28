@@ -1,35 +1,68 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import logoAnimation from '../assets/laplacelogo.animation.mp4';
 
 export default function Preloader({ onComplete }) {
-  const [progress, setProgress] = useState(0);
+  const videoRef = useRef(null);
+  const hasCompletedRef = useRef(false);
+  const [isReady, setIsReady] = useState(false);
 
+  // Lock scroll while preloader is visible (both html & body, in case
+  // Lenis or the page scrolls one instead of the other), restore on unmount
   useEffect(() => {
-    const duration = 2000;
-    const intervalTime = 20;
-    const steps = duration / intervalTime;
-    const increment = 100 / steps;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + increment;
-        if (next >= 100) {
-          clearInterval(timer);
-          setTimeout(() => {
-            onComplete();
-          }, 400);
-          return 100;
-        }
-        return next;
-      });
-    }, intervalTime);
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    html.classList.add('lenis-stopped');
 
-    return () => clearInterval(timer);
-  }, [onComplete]);
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      html.classList.remove('lenis-stopped');
+    };
+  }, []);
 
-  // Glow grows as the page actually finishes loading — the logo visibly
-  // "charges up" instead of pulsing randomly, so the animation means something.
-  const glowStrength = 0.15 + (progress / 100) * 0.55;
+  // Safety net: never let the preloader hang more than ~5s regardless of
+  // what happens with the video (slow network, stalled decode, autoplay
+  // blocked silently, etc.)
+  useEffect(() => {
+    const safetyTimer = setTimeout(() => {
+      complete();
+    }, 5000);
+    return () => clearTimeout(safetyTimer);
+  }, []);
+
+  const complete = () => {
+    if (hasCompletedRef.current) return; // avoid double-trigger
+    hasCompletedRef.current = true;
+    setTimeout(() => {
+      onComplete();
+    }, 200);
+  };
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 1.6;
+    }
+  };
+
+  const handleCanPlay = () => {
+    setIsReady(true);
+    // Try to play explicitly; some browsers silently reject autoplay
+    videoRef.current?.play().catch(() => {
+      // Autoplay blocked or failed — don't let the preloader hang forever
+      complete();
+    });
+  };
+
+  const handleError = () => {
+    // Video failed to load entirely — skip preloader instead of freezing
+    complete();
+  };
 
   return (
     <motion.div
@@ -38,65 +71,34 @@ export default function Preloader({ onComplete }) {
         y: '-100%',
         transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] },
       }}
-      className="fixed inset-0 z-[9999] bg-bgPrimary flex flex-col justify-center items-center select-none"
+      className="fixed inset-0 z-[9999] bg-white flex flex-col justify-center items-center select-none"
     >
-      <div className="flex flex-col items-center">
-        {/* Logo — springs in, floats gently, glows brighter as progress climbs */}
-        <motion.div
-          initial={{ scale: 0.6, opacity: 0, rotate: -6 }}
-          animate={{
-            scale: 1,
-            opacity: 1,
-            rotate: 0,
-            y: [0, -10, 0],
-          }}
-          transition={{
-            scale: { type: 'spring', stiffness: 120, damping: 12 },
-            rotate: { type: 'spring', stiffness: 120, damping: 12 },
-            opacity: { duration: 0.5 },
-            y: {
-              delay: 0.6,
-              duration: 3,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            },
-          }}
-          className="mb-10"
-        >
-          <motion.img
-            src="src/assets/laplacelogo.webp"
-            alt="Laplace Visuals"
-            animate={{
-              filter: `drop-shadow(0 0 ${18 * glowStrength}px rgba(255,94,0,${glowStrength}))`,
-            }}
-            transition={{ duration: 0.1 }}
-            className="w-32 h-32 md:w-48 md:h-48 object-contain"
-          />
-        </motion.div>
-
-        {/* Loading label */}
-        <motion.span
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="font-mono text-[11px] uppercase tracking-[0.3em] text-textSecondary mb-4"
-        >
-          Loading Laplace Visuals
-        </motion.span>
-
-        {/* Progress bar */}
-        <div className="w-56 h-[2px] bg-white/10 rounded-full overflow-hidden relative">
-          <motion.div
-            className="h-full bg-accentPrimary absolute top-0 left-0"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        {/* Percentage */}
-        <span className="font-display font-black text-2xl md:text-3xl text-textPrimary block mt-4 tabular-nums">
-          {Math.floor(progress).toString().padStart(3, '0')}%
-        </span>
-      </div>
+      {/* Wrap the video in a plain div and animate THAT — never animate
+          transform/scale directly on a <video> element, it forces the
+          browser to re-composite the decoded frame every tick and is a
+          common cause of intermittent jank. */}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1.3, opacity: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
+        className="w-[80vw] max-w-2xl md:w-[50vw]"
+      >
+        <video
+          ref={videoRef}
+          src={logoAnimation}
+          preload="auto"
+          autoPlay
+          muted
+          playsInline
+          disablePictureInPicture
+          onLoadedMetadata={handleLoadedMetadata}
+          onCanPlay={handleCanPlay}
+          onEnded={complete}
+          onError={handleError}
+          className="w-full object-contain"
+        />
+      </motion.div>
     </motion.div>
   );
 }

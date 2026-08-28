@@ -2,13 +2,13 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── COLOR PALETTE ── */
-  --color-bgPrimary: #0B0B0C;
-  --color-bgSecondary: #141416;
-  --color-textPrimary: #F5F5F7;
-  --color-textSecondary: #8E8E93;
-  --color-accentPrimary: #FF5E00;
-  --color-accentSecondary: #DFFF00;
+  /* ── COLOR PALETTE — WHITE MODE (black / white / purple) ── */
+  --color-bgPrimary: #FFFFFF;
+  --color-bgSecondary: #F2F1F5;
+  --color-textPrimary: #0B0B0C;
+  --color-textSecondary: #6B6870;
+  --color-accentPrimary: #6D28D9;
+  --color-accentSecondary: #A78BFA;
 
   /* ── FONT SYSTEM ──
      display : big headlines, hero title, section titles, wordmark ("LAPLACE.")
@@ -34,8 +34,8 @@
 }
 
 html, body {
-  background-color: #0B0B0C;
-  color: #F5F5F7;
+  background-color: #FFFFFF;
+  color: #0B0B0C;
   font-family: 'Instrument Sans', sans-serif;
   margin: 0;
   padding: 0;
@@ -94,8 +94,8 @@ a, button, [role="button"], input, select, textarea {
 }
 
 ::selection {
-  background-color: #FF5E00;
-  color: #0B0B0C;
+  background-color: #6D28D9;
+  color: #FFFFFF;
 }
 
 /* Lenis smooth scroll */
@@ -107,9 +107,9 @@ html.lenis, html.lenis body { height: auto; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #0B0B0C; }
-::-webkit-scrollbar-thumb { background: #1C1C1F; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #FF5E00; }
+::-webkit-scrollbar-track { background: #FFFFFF; }
+::-webkit-scrollbar-thumb { background: #0B0B0C; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #6D28D9; }
 
 /* Grain Overlay */
 .grain {
@@ -118,7 +118,9 @@ html.lenis, html.lenis body { height: auto; }
   width: 100%; height: 100%;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.055;
+  opacity: 0.07;
+  transform: translateZ(0);
+  will-change: opacity;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
@@ -126,7 +128,7 @@ html.lenis, html.lenis body { height: auto; }
 .custom-cursor {
   position: fixed;
   width: 8px; height: 8px;
-  background-color: #FF5E00;
+  background-color: #6D28D9;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -137,7 +139,7 @@ html.lenis, html.lenis body { height: auto; }
 .custom-cursor-ring {
   position: fixed;
   width: 40px; height: 40px;
-  border: 1px solid rgba(255, 94, 0, 0.4);
+  border: 1px solid rgba(109, 40, 217, 0.4);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -145,20 +147,20 @@ html.lenis, html.lenis body { height: auto; }
   transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
 }
 
-.custom-cursor.hovering { width: 12px; height: 12px; background-color: #DFFF00; }
-.custom-cursor-ring.hovering { width: 60px; height: 60px; border-color: #DFFF00; background-color: rgba(223,255,0,0.05); }
+.custom-cursor.hovering { width: 12px; height: 12px; background-color: #0B0B0C; }
+.custom-cursor-ring.hovering { width: 60px; height: 60px; border-color: #0B0B0C; background-color: rgba(11,11,12,0.05); }
 .custom-cursor.view-mode { width: 0; height: 0; }
 .custom-cursor-ring.view-mode {
   width: 80px; height: 80px;
-  border-color: #FF5E00;
-  background-color: rgba(255,94,0,0.15);
+  border-color: #6D28D9;
+  background-color: rgba(109,40,217,0.12);
   display: flex; align-items: center; justify-content: center;
 }
 .custom-cursor-ring.view-mode::after {
   content: 'VIEW';
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px; font-weight: 700;
-  color: #FF5E00; letter-spacing: 1px;
+  color: #6D28D9; letter-spacing: 1px;
 }
 
 @media (max-width: 1024px) {

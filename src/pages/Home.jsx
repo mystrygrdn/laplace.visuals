@@ -24,7 +24,7 @@ export default function Home() {
   const latestEvents = eventsData.slice(0, 2);
 
   const marqueeKeywords = [
-    "Graduation", "Events", "Videography",
+    "Photography", "Videography", "Graduation", "Events", "Videography",
   ];
 
   return (

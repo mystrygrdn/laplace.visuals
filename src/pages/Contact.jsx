@@ -32,7 +32,7 @@ export default function Contact() {
     {
       name: 'Instagram',
       handle: '@laplace.visuals',
-      url: 'https://instagram.com',
+      url: 'https://instagram.com/laplace.visuals',
       color: 'hover:bg-accentPrimary hover:text-bgPrimary',
       textColor: 'text-accentPrimary',
       icon: InstagramIcon
