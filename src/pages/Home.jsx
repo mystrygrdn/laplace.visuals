@@ -24,7 +24,7 @@ export default function Home() {
   const latestEvents = eventsData.slice(0, 2);
 
   const marqueeKeywords = [
-    "Graduation", "Events", "Editorial", "Portraiture", "Cinematic Storytelling", "High Contrast", "Analogue Vibes"
+    "Graduation", "Events", "Videography",
   ];
 
   return (

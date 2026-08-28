@@ -1,7 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Instrument+Serif:ital@1&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
+  /* ── COLOR PALETTE ── */
   --color-bgPrimary: #0B0B0C;
   --color-bgSecondary: #141416;
   --color-textPrimary: #F5F5F7;
@@ -9,10 +10,21 @@
   --color-accentPrimary: #FF5E00;
   --color-accentSecondary: #DFFF00;
 
-  --font-sans: 'Outfit', 'Inter', sans-serif;
-  --font-syne: 'Syne', sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  /* ── FONT SYSTEM ──
+     display : big headlines, hero title, section titles, wordmark ("LAPLACE.")
+               -> tall, condensed, heavy weight. This IS the brand voice.
+     brush   : ONE italic accent phrase per section, max. Never full sentences,
+               never all-caps, never small sizes (min ~20px).
+     sans    : all body paragraphs, descriptions.
+     mono    : nav links, eyebrow tags ("// STUDIO..."), category pills,
+               buttons, metadata (dates, location, "SCROLL").
+  */
+  --font-display: 'Big Shoulders Display', sans-serif;
+  --font-brush: 'Instrument Serif', serif;
+  --font-sans: 'Instrument Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
+  /* ── ANIMATIONS ── */
   --animate-marquee: marquee 20s linear infinite;
 
   @keyframes marquee {
@@ -24,19 +36,57 @@
 html, body {
   background-color: #0B0B0C;
   color: #F5F5F7;
-  font-family: 'Outfit', 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  cursor: none; /* Hide default cursor globally for custom cursor */
+  cursor: none;
 }
 
-/* Make sure cursor behaves on interactive items */
+/* ── BRAND TYPOGRAPHY DEFAULTS ──
+   Apply these so the custom fonts actually take effect instead of
+   falling back to system sans/serif. If you're using Tailwind utility
+   classes (font-display / font-mono / font-sans / font-brush) directly
+   on JSX/HTML elements, these base rules are a safety net. */
+
+h1, h2, h3,
+.font-display,
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+nav a,
+.eyebrow,
+.category-pill,
+button,
+.btn,
+.meta,
+.scroll-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.font-brush,
+em,
+i {
+  font-family: var(--font-brush);
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none; /* never uppercase this one */
+}
+
+p, span, li {
+  font-family: var(--font-sans);
+}
+
 a, button, [role="button"], input, select, textarea {
   cursor: none;
 }
 
-/* Fallback for screens where custom cursor is disabled (mobile) */
 @media (max-width: 1024px) {
   html, body, a, button, [role="button"], input, select, textarea {
     cursor: auto !important;
@@ -49,51 +99,23 @@ a, button, [role="button"], input, select, textarea {
 }
 
 /* Lenis smooth scroll */
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0B0B0C; }
+::-webkit-scrollbar-thumb { background: #1C1C1F; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #FF5E00; }
 
-::-webkit-scrollbar-track {
-  background: #0B0B0C;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1C1C1F;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #FF5E00;
-}
-
-/* Grain Overlay style */
+/* Grain Overlay */
 .grain {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   z-index: 9999;
   pointer-events: none;
   opacity: 0.055;
@@ -103,8 +125,7 @@ html.lenis, html.lenis body {
 /* Custom Cursor */
 .custom-cursor {
   position: fixed;
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   background-color: #FF5E00;
   border-radius: 50%;
   transform: translate(-50%, -50%);
@@ -115,58 +136,31 @@ html.lenis, html.lenis body {
 
 .custom-cursor-ring {
   position: fixed;
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border: 1px solid rgba(255, 94, 0, 0.4);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 9999;
-  transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s, transform 0.1s ease-out;
+  transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
 }
 
-/* Hover States for Cursor */
-.custom-cursor.hovering {
-  width: 12px;
-  height: 12px;
-  background-color: #DFFF00;
-}
-
-.custom-cursor-ring.hovering {
-  width: 60px;
-  height: 60px;
-  border-color: #DFFF00;
-  background-color: rgba(223, 255, 0, 0.05);
-}
-
-.custom-cursor.view-mode {
-  width: 0px;
-  height: 0px;
-}
-
+.custom-cursor.hovering { width: 12px; height: 12px; background-color: #DFFF00; }
+.custom-cursor-ring.hovering { width: 60px; height: 60px; border-color: #DFFF00; background-color: rgba(223,255,0,0.05); }
+.custom-cursor.view-mode { width: 0; height: 0; }
 .custom-cursor-ring.view-mode {
-  width: 80px;
-  height: 80px;
+  width: 80px; height: 80px;
   border-color: #FF5E00;
-  background-color: rgba(255, 94, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: rgba(255,94,0,0.15);
+  display: flex; align-items: center; justify-content: center;
 }
-
 .custom-cursor-ring.view-mode::after {
   content: 'VIEW';
-  font-family: 'Syne', sans-serif;
-  font-size: 10px;
-  font-weight: 800;
-  color: #FF5E00;
-  letter-spacing: 1px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  color: #FF5E00; letter-spacing: 1px;
 }
 
-/* Hide cursor elements on mobile devices */
 @media (max-width: 1024px) {
-  .custom-cursor,
-  .custom-cursor-ring {
-    display: none !important;
-  }
+  .custom-cursor, .custom-cursor-ring { display: none !important; }
 }
