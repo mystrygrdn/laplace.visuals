@@ -35,47 +35,10 @@ export default function Home() {
       exit="exit"
       className="w-full min-h-screen pt-24"
     >
-      {/* HERO SECTION */}
-      <section className="relative min-h-[90vh] flex flex-col justify-center px-6 md:px-12 overflow-hidden border-b border-white/5">
-        <ThreeHeroBg />
-
-        <div className="max-w-7xl mx-auto w-full z-10 select-none flex flex-col justify-center items-start mt-10 md:mt-20">
-          <div className="text-accentSecondary text-xs md:text-sm uppercase font-bold tracking-widest mb-4">
-            // Studio Laplace Visuals
-          </div>
-          
-          <TextReveal type="chars" className="w-full">
-            <h1 className="font-syne text-5xl md:text-[8.5rem] font-black tracking-tighter leading-none text-textPrimary uppercase">
-              LAPLACE<br />VISUALS<span className="text-accentPrimary">.</span>
-            </h1>
-          </TextReveal>
-
-          <TextReveal type="words" delay={0.4} className="max-w-xl mt-6 md:mt-8">
-            <p className="text-textSecondary text-base md:text-xl leading-relaxed font-light">
-              We freeze authentic raw emotion, light, and stories in silver halide. An editorial photography studio with a <span className="text-textPrimary font-semibold font-serif italic">Gen-Z edge</span>.
-            </p>
-          </TextReveal>
-
-          <div className="flex flex-col sm:flex-row gap-5 mt-10 w-full sm:w-auto">
-            <Link to="/portfolio">
-              <MagneticButton className="w-full sm:w-auto bg-accentPrimary hover:bg-accentPrimary/80 text-bgPrimary font-syne font-bold uppercase tracking-wider text-sm px-8 py-4 rounded-full flex items-center justify-center gap-2 transition-all">
-                Explore Work <ArrowUpRight className="w-4 h-4" />
-              </MagneticButton>
-            </Link>
-            <Link to="/contact">
-              <MagneticButton className="w-full sm:w-auto border border-white/10 hover:border-accentSecondary hover:bg-accentSecondary/5 text-textPrimary font-syne font-bold uppercase tracking-wider text-sm px-8 py-4 rounded-full flex items-center justify-center gap-2 transition-all">
-                Book a Session
-              </MagneticButton>
-            </Link>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce opacity-50 hidden md:flex">
-          <span className="text-[10px] tracking-widest uppercase text-textSecondary">Scroll</span>
-          <ArrowDown className="w-4 h-4 text-accentPrimary" />
-        </div>
-      </section>
+    {/* HERO SECTION — -mt-24 nge-cancel pt-24 di wrapper atas, biar foto mulai persis dari atas viewport */}
+<section className="relative -mt-24 overflow-hidden border-b border-white/5">
+  <ThreeHeroBg />
+</section>
 
       {/* MARQUEE RUNNING TEXT */}
       <Marquee items={marqueeKeywords} />

@@ -26,7 +26,7 @@ export default function Navbar() {
           <img
             src={laplaceLogo}
             alt="Laplace Visuals"
-            className="h-14 md:h-16 w-auto object-contain invert"
+            className="h-18 md:h-20 w-auto object-contain invert"
           />
         </NavLink>
 

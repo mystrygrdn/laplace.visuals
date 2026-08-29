@@ -1,206 +1,100 @@
-import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import gsap from 'gsap';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import heroPhoto from '../assets/danielhero.webp'; // ⚠️ sesuaikan path. Ganti jadi <video> di bawah kalau kamu punya file video hero.
 
-export default function ThreeHeroBg() {
-  const containerRef = useRef(null);
-  const [isDesktop, setIsDesktop] = useState(() => {
-    return typeof window !== 'undefined' ? window.innerWidth >= 768 : false;
-  });
+// npm install framer-motion lucide-react
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (!isDesktop) return;
-
-    const container = containerRef.current;
-    if (!container) return;
-
-    // ────────────────────────────────────────────────
-    // SCENE / CAMERA / RENDERER
-    // ────────────────────────────────────────────────
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xffffff, 6, 26);
-
-    const camera = new THREE.PerspectiveCamera(
-      50,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 1.2, 16);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-
-    const purple = new THREE.Color('#6D28D9');
-    const black = new THREE.Color('#0B0B0C');
-
-    // ────────────────────────────────────────────────
-    // SCENE CONTENT — sparse wireframe grid field
-    // (just enough geometry for the camera move to read;
-    //  no particle clutter, no flashing dots)
-    // ────────────────────────────────────────────────
-    const sceneGroup = new THREE.Group();
-
-    // Floor grid — thin, wide, sits low
-    const floorGrid = new THREE.GridHelper(40, 40, purple, black);
-    floorGrid.position.y = -3;
-    floorGrid.material.transparent = true;
-    floorGrid.material.opacity = 0.18;
-    sceneGroup.add(floorGrid);
-
-    // A handful of slow-drifting wireframe polyhedra for depth cues
-    const shapeGeometries = [
-      new THREE.IcosahedronGeometry(1.4, 0),
-      new THREE.OctahedronGeometry(1, 0),
-      new THREE.TorusGeometry(1.1, 0.35, 8, 24),
-    ];
-
-    const shapes = shapeGeometries.map((geometry, i) => {
-      const edges = new THREE.EdgesGeometry(geometry);
-      const material = new THREE.LineBasicMaterial({
-        color: i % 2 === 0 ? purple : black,
-        transparent: true,
-        opacity: 0.35,
-      });
-      const mesh = new THREE.LineSegments(edges, material);
-      mesh.position.set(
-        (i - 1) * 6,
-        Math.sin(i) * 1.5,
-        -i * 4
-      );
-      sceneGroup.add(mesh);
-      return mesh;
-    });
-
-    scene.add(sceneGroup);
-
-    // ────────────────────────────────────────────────
-    // CAMERA ANIMATION — slow forward dolly + gentle drift,
-    // this IS the visual: no particles doing the work.
-    // ────────────────────────────────────────────────
-    const dollyTl = gsap.timeline({ delay: 0.1 });
-    dollyTl.to(camera.position, {
-      z: 6,
-      y: 0.4,
-      duration: 5,
-      ease: 'power2.out',
-    });
-
-    // Continuous slow orbit around the scene
-    const orbitState = { angle: 0 };
-    const orbitTween = gsap.to(orbitState, {
-      angle: Math.PI * 2,
-      duration: 60,
-      ease: 'none',
-      repeat: -1,
-    });
-
-    // Gentle up/down bob so the camera feels handheld, not static
-    const bobTween = gsap.to(camera.position, {
-      y: '+=0.3',
-      duration: 6,
-      ease: 'sine.inOut',
-      yoyo: true,
-      repeat: -1,
-      delay: 5,
-    });
-
-    // ────────────────────────────────────────────────
-    // MOUSE PARALLAX
-    // ────────────────────────────────────────────────
-    let mouseX = 0;
-    let mouseY = 0;
-
-    const onMouseMove = (e) => {
-      mouseX = e.clientX / window.innerWidth - 0.5;
-      mouseY = e.clientY / window.innerHeight - 0.5;
-    };
-    window.addEventListener('mousemove', onMouseMove);
-
-    // ────────────────────────────────────────────────
-    // RESIZE
-    // ────────────────────────────────────────────────
-    const onResize = () => {
-      if (!containerRef.current) return;
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
-    window.addEventListener('resize', onResize);
-
-    // ────────────────────────────────────────────────
-    // ANIMATION LOOP
-    // ────────────────────────────────────────────────
-    const clock = new THREE.Clock();
-    let animationFrameId;
-    const orbitRadius = 2.5;
-
-    const animate = () => {
-      const t = clock.getElapsedTime();
-
-      // Base orbit position around the scene's center, layered under the dolly/bob tweens
-      const orbitX = Math.sin(orbitState.angle) * orbitRadius;
-      const orbitZOffset = Math.cos(orbitState.angle) * orbitRadius * 0.3;
-
-      const targetX = orbitX + mouseX * 1.5;
-      camera.position.x += (targetX - camera.position.x) * 0.03;
-      camera.position.z += (orbitZOffset * 0.02);
-
-      camera.lookAt(0, 0, -2);
-
-      shapes.forEach((mesh, i) => {
-        mesh.rotation.x = t * 0.05 * (i + 1);
-        mesh.rotation.y = t * 0.08 * (i + 1);
-      });
-
-      renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    // ────────────────────────────────────────────────
-    // CLEANUP
-    // ────────────────────────────────────────────────
-    return () => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      dollyTl.kill();
-      orbitTween.kill();
-      bobTween.kill();
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('resize', onResize);
-
-      if (renderer.domElement && container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
-
-      floorGrid.geometry.dispose();
-      floorGrid.material.dispose();
-      shapes.forEach((mesh) => {
-        mesh.geometry.dispose();
-        mesh.material.dispose();
-      });
-      scene.clear();
-      renderer.dispose();
-    };
-  }, [isDesktop]);
+function WordsPullUp({ text, className = '', style }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const words = text.split(' ');
 
   return (
-    <div
-      ref={containerRef}
-      className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-0"
-    />
+    <div ref={ref} className={`inline-flex flex-wrap ${className}`} style={style}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          initial={{ y: 20, opacity: 0 }}
+          animate={isInView ? { y: 0, opacity: 1 } : {}}
+          transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-block"
+          style={{ marginRight: i === words.length - 1 ? 0 : '0.25em' }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
+export default function ParallaxHero() {
+  return (
+    <section className="relative left-1/2 h-[100svh] w-screen -translate-x-1/2 overflow-hidden">
+        {/* Background photo. Kalau punya video hero, ganti jadi:
+           <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" src={heroVideo} /> */}
+        <img
+          src={heroPhoto}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+        />
+
+        {/* noise overlay tipis biar foto nggak keliatan flat */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.5] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
+
+        {/* gradient overlay — kontras buat teks putih */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/70" />
+
+        {/* Konten hero. Navbar sengaja NGGAK dibikin di sini — pakai navbar kamu sendiri di luar komponen ini. */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-6 sm:px-6 md:px-10 md:pb-10">
+          <div className="grid grid-cols-12 items-end gap-4">
+            <div className="col-span-12 lg:col-span-8">
+              <h1 className="text-[18vw] font-black uppercase leading-[0.85] tracking-[-0.03em] text-white sm:text-[15vw] md:text-[13vw] lg:text-[11vw] xl:text-[10vw]">
+                <WordsPullUp text="Laplace Visuals" />
+              </h1>
+            </div>
+
+            <div className="col-span-12 flex flex-col gap-5 pb-2 lg:col-span-4 lg:pb-4">
+              <motion.p
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="text-sm text-white/70 md:text-base"
+                style={{ lineHeight: 1.5 }}
+              >
+                We freeze authentic raw emotion, light, and stories in silver
+                halide. An editorial photography studio with a{' '}
+                <span className="italic text-white">Gen-Z edge</span>.
+              </motion.p>
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center gap-4"
+              >
+                <button className="group inline-flex items-center gap-2 self-start rounded-full bg-violet-500 py-1 pl-5 pr-1 text-sm font-semibold text-white transition-all hover:gap-3 hover:bg-violet-400">
+                  Explore Work
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white transition-transform group-hover:scale-110">
+                    <ArrowRight className="h-4 w-4 text-violet-600" />
+                  </span>
+                </button>
+                <a
+                  href="/contact"
+                  className="text-sm font-semibold text-white/70 underline-offset-4 transition hover:text-white hover:underline"
+                >
+                  Book a Session
+                </a>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+    </section>
   );
 }

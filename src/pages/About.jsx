@@ -55,17 +55,17 @@ export default function About() {
               <div className="absolute inset-0 bg-gradient-to-t from-bgPrimary via-transparent to-transparent opacity-60" />
             </div>
             <span className="absolute bottom-6 left-6 bg-accentPrimary text-bgPrimary font-syne font-extrabold text-xs uppercase tracking-widest px-4 py-2 rounded-full shadow-lg">
-              Lead Artist
+             Founder & Main Photographer
             </span>
           </div>
 
           {/* Photographer details */}
           <div className="lg:col-span-7 flex flex-col justify-center">
             <span className="text-accentSecondary text-xs uppercase font-mono tracking-widest mb-3">
-              // Creative Director
+              // Founder
             </span>
             <h2 className="font-syne text-3xl md:text-5xl font-extrabold uppercase text-textPrimary leading-none mb-6">
-              Darlian Laplace<span className="text-accentPrimary">.</span>
+              Jeremy Patras<span className="text-accentPrimary">.</span>
             </h2>
             
             <blockquote className="border-l-4 border-accentSecondary pl-6 italic text-textPrimary text-lg md:text-xl font-serif mb-6 leading-relaxed">

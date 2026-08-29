@@ -1,15 +1,15 @@
 export const teamData = [
   {
     id: 1,
-    name: "Darlian Laplace",
-    role: "Founder & Principal Photographer",
+    name: "Jeremy Patras",
+    role: "Founder & Main Photographer",
     funFact: "Favorite lens: 35mm f/1.2. Thinks autofocus is a recommendation.",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop"
   },
   {
     id: 2,
-    name: "Wiratama Putra",
-    role: "Co-Founder & Lighting Director",
+    name: "Darlene Asalui",
+    role: "Camera Assistant",
     funFact: "Consumes 4 double-espresso shots per shoot. Commands lighting ratios like magic.",
     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop"
   },

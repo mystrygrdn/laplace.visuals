@@ -1,333 +1,390 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { X, ChevronLeft, ChevronRight, MapPin, Maximize2 } from 'lucide-react';
-import MagneticButton from '../components/MagneticButton';
-import { portfolioData } from '../data/portfolio';
+import { X, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
+// =============================================
+// DUMMY DATA
+// =============================================
+const portfolioData = [
+  {
+    id: 1,
+    title: 'Powerade',
+    subtitle: 'The Athletes Code',
+    category: 'Events',
+    year: '2025',
+    location: 'Jakarta',
+    client: 'Powerade ID',
+    cover: 'https://picsum.photos/seed/pf1/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf1a/1200/800', caption: 'Opening Shot' },
+      { src: 'https://picsum.photos/seed/pf1b/1200/800', caption: 'Training Ground' },
+      { src: 'https://picsum.photos/seed/pf1c/1200/800', caption: 'Final Sprint' },
+      { src: 'https://picsum.photos/seed/pf1d/1200/800', caption: 'Team Huddle' },
+    ],
+  },
+  {
+    id: 2,
+    title: 'Visa x Wells Fargo',
+    subtitle: 'Fan Fare',
+    category: 'Events',
+    year: '2025',
+    location: 'Bandung',
+    client: 'Visa',
+    cover: 'https://picsum.photos/seed/pf2/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf2a/1200/800', caption: 'Crowd Entrance' },
+      { src: 'https://picsum.photos/seed/pf2b/1200/800', caption: 'Stage Setup' },
+      { src: 'https://picsum.photos/seed/pf2c/1200/800', caption: 'Fan Reactions' },
+    ],
+  },
+  {
+    id: 3,
+    title: 'Nescafé',
+    subtitle: 'The Third Half',
+    category: 'Graduation',
+    year: '2024',
+    location: 'Manado',
+    client: 'Nescafé ID',
+    cover: 'https://picsum.photos/seed/pf3/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf3a/1200/800', caption: 'Morning Brew' },
+      { src: 'https://picsum.photos/seed/pf3b/1200/800', caption: 'Campus Corner' },
+      { src: 'https://picsum.photos/seed/pf3c/1200/800', caption: 'Study Session' },
+      { src: 'https://picsum.photos/seed/pf3d/1200/800', caption: 'Graduation Toast' },
+      { src: 'https://picsum.photos/seed/pf3e/1200/800', caption: 'Group Portrait' },
+    ],
+  },
+  {
+    id: 4,
+    title: 'Superbet',
+    subtitle: 'Bet Responsibly',
+    category: 'Events',
+    year: '2026',
+    location: 'Surabaya',
+    client: 'Superbet',
+    cover: 'https://picsum.photos/seed/pf4/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf4a/1200/800', caption: 'Court Side' },
+      { src: 'https://picsum.photos/seed/pf4b/1200/800', caption: 'Spin' },
+    ],
+  },
+  {
+    id: 5,
+    title: 'Harman Kardon',
+    subtitle: 'See / Hear',
+    category: 'Graduation',
+    year: '2024',
+    location: 'Yogyakarta',
+    client: 'Harman Kardon',
+    cover: 'https://picsum.photos/seed/pf5/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf5a/1200/800', caption: 'Close Up' },
+      { src: 'https://picsum.photos/seed/pf5b/1200/800', caption: 'Sound Wave' },
+      { src: 'https://picsum.photos/seed/pf5c/1200/800', caption: 'Studio Session' },
+    ],
+  },
+  {
+    id: 6,
+    title: 'Darktrace',
+    subtitle: 'The Defenders',
+    category: 'Events',
+    year: '2026',
+    location: 'Tangerang',
+    client: 'Darktrace',
+    cover: 'https://picsum.photos/seed/pf6/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf6a/1200/800', caption: 'Office Portrait' },
+      { src: 'https://picsum.photos/seed/pf6b/1200/800', caption: 'City Backdrop' },
+    ],
+  },
+];
 
-const pageTransition = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-  exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: 'easeIn' } }
-};
+// Spring config bergaya Apple: cepat menuju target tapi ada sedikit "settle" halus di akhir
+const APPLE_SPRING = { type: 'spring', stiffness: 260, damping: 32, mass: 0.9 };
 
-export default function Portfolio() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [lightboxIndex, setLightboxIndex] = useState(null);
-  const horizontalSectionRef = useRef(null);
-  const horizontalContainerRef = useRef(null);
+// =============================================
+// COVERFLOW CAROUSEL — smooth spring + blur depth + drag/swipe
+// =============================================
+function CoverflowCarousel({ photos, activeIndex, setActiveIndex }) {
+  const total = photos.length;
+  const goTo = (i) => setActiveIndex(((i % total) + total) % total);
 
-  const categories = ['All', 'Graduation', 'Events'];
-
-  // Filter items
-  const filteredItems = selectedCategory === 'All'
-    ? portfolioData
-    : portfolioData.filter(item => item.category === selectedCategory);
-
-  // Featured items for horizontal scroll (take the first 5 elements)
-  const horizontalItems = portfolioData.slice(0, 5);
-
-  // Set up GSAP Horizontal Scroll Pinning (Desktop only)
-  useEffect(() => {
-    const isDesktop = window.innerWidth >= 1024;
-    const container = horizontalContainerRef.current;
-    const list = horizontalSectionRef.current;
-    
-    if (!isDesktop || !container || !list) return;
-
-    // Force recalculate elements width
-    const totalScrollWidth = list.scrollWidth - window.innerWidth;
-    
-    if (totalScrollWidth <= 0) return;
-
-    const scrollAnim = gsap.to(list, {
-      x: -totalScrollWidth,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: container,
-        pin: true,
-        scrub: 1,
-        start: 'top top',
-        end: () => `+=${totalScrollWidth}`,
-        invalidateOnRefresh: true,
-      }
-    });
-
-    return () => {
-      scrollAnim.kill();
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
-
-  // Lightbox keyboard controls
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (lightboxIndex === null) return;
-      if (e.key === 'Escape') setLightboxIndex(null);
-      if (e.key === 'ArrowRight') handleNextPhoto();
-      if (e.key === 'ArrowLeft') handlePrevPhoto();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxIndex]);
-
-  const handlePrevPhoto = () => {
-    setLightboxIndex(prev => (prev === 0 ? filteredItems.length - 1 : prev - 1));
-  };
-
-  const handleNextPhoto = () => {
-    setLightboxIndex(prev => (prev === filteredItems.length - 1 ? 0 : prev + 1));
+  const handleDragEnd = (_, info) => {
+    const swipeThreshold = 60;
+    if (info.offset.x < -swipeThreshold) goTo(activeIndex + 1);
+    else if (info.offset.x > swipeThreshold) goTo(activeIndex - 1);
   };
 
   return (
-    <motion.div
-      variants={pageTransition}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="w-full min-h-screen pt-24"
+    <div
+      className="relative w-full h-[38vh] md:h-[42vh] flex items-center justify-center overflow-hidden select-none"
+      style={{ perspective: 1200 }}
     >
-      {/* HEADER */}
-      <section className="px-6 md:px-12 max-w-7xl mx-auto mb-12">
-        <span className="text-accentSecondary text-xs uppercase font-mono">// Our Vault</span>
-        <h1 className="font-syne text-4xl md:text-7xl font-extrabold uppercase mt-2">
-          Visual Archive<span className="text-accentPrimary">.</span>
-        </h1>
-        <p className="text-textSecondary text-sm md:text-lg max-w-md leading-relaxed mt-4">
-          Explore our collection of authentic stories, frame-by-frame. Filter by category or explore the highlights.
-        </p>
-      </section>
+      {photos.map((photo, i) => {
+        let offset = i - activeIndex;
+        if (offset > total / 2) offset -= total;
+        if (offset < -total / 2) offset += total;
 
-      {/* HORIZONTAL SHOWCASE (PINNED ON SCROLL) */}
-      <div className="hidden lg:block w-full" ref={horizontalContainerRef}>
-        <div className="h-screen w-full flex flex-col justify-center bg-bgSecondary overflow-hidden relative">
-          <div className="absolute top-8 left-12 z-10 flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-accentPrimary animate-pulse" />
-            <span className="text-[11px] font-syne font-bold uppercase tracking-widest text-textPrimary">
-              Featured Canvas (Vertical Scroll to Pan)
-            </span>
-          </div>
+        const isActive = offset === 0;
+        const absOffset = Math.abs(offset);
+        if (absOffset > 2) return null;
 
-          <div ref={horizontalSectionRef} className="flex flex-row items-center gap-12 px-12 whitespace-nowrap will-change-transform">
-            {horizontalItems.map((item) => (
-              <div 
-                key={`horiz-${item.id}`} 
-                className="inline-block relative shrink-0 aspect-[16/10] h-[65vh] bg-bgPrimary border border-white/5 rounded-3xl overflow-hidden group shadow-2xl"
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bgPrimary/90 via-transparent to-transparent flex flex-col justify-end p-8">
-                  <span className="text-accentSecondary text-xs font-bold uppercase tracking-widest mb-1">
-                    {item.category}
-                  </span>
-                  <h3 className="font-syne text-3xl font-bold text-textPrimary whitespace-normal leading-tight">
-                    {item.title}
-                  </h3>
-                  <p className="text-textSecondary text-sm mt-2 flex items-center gap-1.5 font-light">
-                    <MapPin className="w-4 h-4 text-accentPrimary" /> {item.location}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* MOBILE SHOWCASE ROW (NATIVE HORIZONTAL SCROLL) */}
-      <div className="lg:hidden w-full px-6 mb-16">
-        <span className="text-[10px] font-syne font-bold uppercase tracking-widest text-accentSecondary block mb-4">
-          Swipe Highlights
-        </span>
-        <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 select-none">
-          {horizontalItems.map((item) => (
-            <div 
-              key={`horiz-mob-${item.id}`} 
-              className="snap-start shrink-0 w-[80vw] aspect-[4/3] bg-bgSecondary border border-white/5 rounded-2xl overflow-hidden relative"
-            >
-              <img
-                src={item.image}
-                alt={item.title}
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-bgPrimary/90 via-transparent to-transparent flex flex-col justify-end p-5">
-                <span className="text-accentSecondary text-[10px] font-bold uppercase tracking-widest mb-1">
-                  {item.category}
-                </span>
-                <h3 className="font-syne text-lg font-bold text-textPrimary">
-                  {item.title}
-                </h3>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* GALLERY FILTER & GRID */}
-      <section className="py-16 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
-        {/* FILTER BAR */}
-        <div className="flex flex-wrap gap-2 md:gap-4 justify-start md:justify-center mb-12">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2.5 rounded-full font-syne text-xs uppercase tracking-widest transition-all duration-300 border ${
-                selectedCategory === cat
-                  ? 'bg-accentSecondary text-bgPrimary border-accentSecondary font-bold scale-105'
-                  : 'bg-bgSecondary text-textSecondary border-white/10 hover:border-textPrimary hover:text-textPrimary'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* PROJECTS GRID (MASONRY-LIKE GRID) */}
-        <motion.div 
-          layout
-          className="columns-1 sm:columns-2 lg:columns-3 gap-6 md:gap-8 space-y-6 md:space-y-8"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredItems.map((item, idx) => (
-              <motion.div
-                layout
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4 }}
-                onClick={() => setLightboxIndex(idx)}
-                className="break-inside-avoid relative overflow-hidden group bg-bgSecondary border border-white/5 rounded-2xl cursor-pointer hover:border-accentPrimary/25 transition-colors duration-300 shadow-lg"
-              >
-                {/* PHOTO CONTAINER */}
-                <div className={`relative overflow-hidden portfolio-image-card ${
-                  item.aspect === 'tall' 
-                    ? 'aspect-[3/4]' 
-                    : item.aspect === 'wide' 
-                      ? 'aspect-[3/2]' 
-                      : 'aspect-[1/1]'
-                }`}>
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  {/* Floating Expand Icon */}
-                  <div className="absolute top-4 right-4 bg-bgPrimary/80 w-8 h-8 rounded-full flex items-center justify-center text-textPrimary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Maximize2 className="w-4 h-4" />
-                  </div>
-                </div>
-
-                {/* BOTTOM CAPTION */}
-                <div className="p-5 flex flex-col">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-syne text-md font-bold group-hover:text-accentPrimary transition-colors duration-300">
-                      {item.title}
-                    </h4>
-                    <span className="text-[9px] font-mono border border-accentSecondary/30 text-accentSecondary bg-accentSecondary/5 px-2.5 py-0.5 rounded-full">
-                      {item.category}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-textSecondary mt-2 pt-2 border-t border-white/5 font-light">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-accentPrimary" /> {item.location}
-                    </span>
-                    <span>{item.year}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </section>
-
-      {/* LIGHTBOX MODAL */}
-      <AnimatePresence>
-        {lightboxIndex !== null && (
+        return (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-bgPrimary/98 backdrop-blur-md flex flex-col justify-center items-center p-4 md:p-10 select-none"
+            key={photo.src}
+            onClick={() => !isActive && goTo(i)}
+            drag={isActive ? 'x' : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.5}
+            onDragEnd={handleDragEnd}
+            animate={{
+              x: `${offset * 62}%`,
+              scale: isActive ? 1 : 0.76 - absOffset * 0.05,
+              opacity: isActive ? 1 : 0.5 - absOffset * 0.1,
+              rotateY: offset * -14,
+              filter: isActive ? 'blur(0px) brightness(1)' : 'blur(2px) brightness(0.75)',
+              zIndex: 10 - absOffset,
+            }}
+            transition={APPLE_SPRING}
+            whileTap={isActive ? { scale: 0.97, transition: { duration: 0.15 } } : {}}
+            className={`absolute w-[55%] md:w-[36%] aspect-[4/3] rounded-xl overflow-hidden shadow-xl border border-neutral-200 bg-neutral-100 ${
+              isActive ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+            }`}
+            style={{ transformStyle: 'preserve-3d', willChange: 'transform, filter, opacity' }}
           >
-            {/* Close button */}
-            <button
-              onClick={() => setLightboxIndex(null)}
-              className="absolute top-6 right-6 text-textSecondary hover:text-accentPrimary transition-colors w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10"
-              aria-label="Close Lightbox"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            {/* Left Nav */}
-            <button
-              onClick={handlePrevPhoto}
-              className="absolute left-6 text-textSecondary hover:text-accentPrimary transition-colors w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 hidden md:flex"
-              aria-label="Previous Photo"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-
-            {/* Right Nav */}
-            <button
-              onClick={handleNextPhoto}
-              className="absolute right-6 text-textSecondary hover:text-accentPrimary transition-colors w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 hidden md:flex"
-              aria-label="Next Photo"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-
-            {/* Photo & Caption wrapper */}
-            <div className="max-w-5xl w-full h-[75vh] flex flex-col justify-center items-center gap-4">
-              <motion.img
-                key={filteredItems[lightboxIndex].image}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                src={filteredItems[lightboxIndex].image}
-                alt={filteredItems[lightboxIndex].title}
-                className="max-h-[65vh] max-w-full object-contain rounded-lg shadow-2xl"
-              />
-
-              {/* Caption */}
-              <div className="text-center">
-                <span className="text-[10px] tracking-widest text-accentSecondary font-bold uppercase">
-                  {filteredItems[lightboxIndex].category}
-                </span>
-                <h3 className="font-syne text-xl md:text-2xl font-bold text-textPrimary mt-1">
-                  {filteredItems[lightboxIndex].title}
-                </h3>
-                <p className="text-textSecondary text-xs md:text-sm mt-1.5 flex items-center justify-center gap-1.5 font-light">
-                  <span>Client: {filteredItems[lightboxIndex].client}</span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-accentPrimary" /> {filteredItems[lightboxIndex].location}</span>
-                  <span>•</span>
-                  <span>{filteredItems[lightboxIndex].year}</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Mobile swipe hint */}
-            <div className="absolute bottom-6 flex gap-8 md:hidden text-xs text-textSecondary">
-              <button onClick={handlePrevPhoto} className="px-4 py-2 border border-white/10 rounded-full flex items-center gap-1 uppercase tracking-wider font-mono">
-                Prev
-              </button>
-              <button onClick={handleNextPhoto} className="px-4 py-2 border border-white/10 rounded-full flex items-center gap-1 uppercase tracking-wider font-mono">
-                Next
-              </button>
-            </div>
+            <img
+              src={photo.src}
+              alt={photo.caption}
+              className="w-full h-full object-cover pointer-events-none"
+              draggable={false}
+            />
           </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+// =============================================
+// MODAL DETAIL + CAROUSEL (white theme, fit viewport)
+// =============================================
+function ProjectModal({ project, onClose }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const total = project.photos.length;
+
+  const handleNext = useCallback(() => setActiveIndex((p) => (p + 1) % total), [total]);
+  const handlePrev = useCallback(() => setActiveIndex((p) => (p - 1 + total) % total), [total]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'ArrowLeft') handlePrev();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNext, handlePrev, onClose]);
+
+  const activePhoto = project.photos[activeIndex];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 16 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl border border-neutral-200 shadow-2xl"
+      >
+        <button
+          onClick={onClose}
+          aria-label="Tutup"
+          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 flex items-center justify-center text-neutral-700 transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="pt-8 pb-2 px-6 md:px-10 text-center">
+          <span className="text-neutral-400 text-[11px] font-mono uppercase tracking-widest">
+            {project.category}
+          </span>
+          <h2 className="text-neutral-900 text-2xl md:text-3xl font-bold uppercase mt-1">
+            {project.title}
+          </h2>
+          <p className="text-neutral-500 text-sm mt-1">{project.subtitle}</p>
+        </div>
+
+        <div className="relative mt-2">
+          <CoverflowCarousel
+            photos={project.photos}
+            activeIndex={activeIndex}
+            setActiveIndex={setActiveIndex}
+          />
+
+          <button
+            onClick={handlePrev}
+            aria-label="Foto sebelumnya"
+            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white hover:bg-neutral-100 border border-neutral-200 shadow flex items-center justify-center text-neutral-700 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={handleNext}
+            aria-label="Foto berikutnya"
+            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white hover:bg-neutral-100 border border-neutral-200 shadow flex items-center justify-center text-neutral-700 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="text-center pt-3">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={activePhoto.caption}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
+              className="text-neutral-900 font-medium text-sm md:text-base"
+            >
+              {activePhoto.caption}
+            </motion.p>
+          </AnimatePresence>
+          <span className="text-neutral-400 text-xs font-mono mt-1 block">
+            {String(activeIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-6 md:gap-10 mt-5 mb-6 px-6 py-5 border-t border-neutral-200 text-xs font-mono uppercase tracking-widest text-neutral-500">
+          <div className="text-center">
+            <p className="text-neutral-400 mb-1">Year</p>
+            <p className="text-neutral-900">{project.year}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-neutral-400 mb-1">Client</p>
+            <p className="text-neutral-900">{project.client}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-neutral-400 mb-1 flex items-center gap-1 justify-center">
+              <MapPin className="w-3 h-3" /> Location
+            </p>
+            <p className="text-neutral-900">{project.location}</p>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// =============================================
+// CARD GRID
+// =============================================
+function PortfolioCard({ item, index, onClick }) {
+  return (
+    <motion.button
+      onClick={onClick}
+      layout
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.4, delay: (index % 3) * 0.06, ease: 'easeOut' }}
+      className="group block text-left"
+    >
+      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-neutral-100 border border-neutral-200">
+        <img
+          src={item.cover}
+          alt={item.title}
+          loading="lazy"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+        <span className="absolute top-3 left-3 font-mono text-[11px] text-white bg-black/50 backdrop-blur px-2 py-0.5 rounded-full tracking-widest">
+          [{String(index + 1).padStart(2, '0')}]
+        </span>
+      </div>
+
+      <div className="pt-4">
+        <h3 className="text-neutral-900 text-lg md:text-xl font-bold uppercase leading-tight transition-colors duration-300 group-hover:text-neutral-500">
+          {item.title}
+        </h3>
+        <p className="text-neutral-400 text-[11px] uppercase tracking-widest mt-1 font-mono">
+          {item.subtitle}
+        </p>
+      </div>
+    </motion.button>
+  );
+}
+
+// =============================================
+// MAIN EXPORT
+// =============================================
+export default function PortfolioGrid() {
+  const categories = ['All', 'Graduation', 'Events'];
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  const filteredItems =
+    selectedCategory === 'All'
+      ? portfolioData
+      : portfolioData.filter((item) => item.category === selectedCategory);
+
+  return (
+    <section className="w-full bg-white pt-32 md:pt-40 pb-16 px-6 md:px-10">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10 pb-6 border-b border-neutral-200">
+          <h2 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-neutral-900">
+            Laplace Archive
+          </h2>
+
+          <div className="flex gap-2 bg-neutral-100 p-1.5 rounded-full border border-neutral-200 w-fit">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ${
+                  selectedCategory === cat
+                    ? 'bg-neutral-900 text-white'
+                    : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <AnimatePresence mode="popLayout">
+          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+            {filteredItems.map((item, index) => (
+              <PortfolioCard
+                key={item.id}
+                item={item}
+                index={index}
+                onClick={() => setSelectedProject(item)}
+              />
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {filteredItems.length === 0 && (
+          <div className="text-center text-neutral-400 font-mono uppercase tracking-widest text-sm py-20">
+            Tidak ada proyek pada kategori ini.
+          </div>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
         )}
       </AnimatePresence>
-    </motion.div>
+    </section>
   );
 }
