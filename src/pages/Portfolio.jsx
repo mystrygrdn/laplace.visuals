@@ -8,12 +8,12 @@ import { X, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 const portfolioData = [
   {
     id: 1,
-    title: 'Powerade',
-    subtitle: 'The Athletes Code',
-    category: 'Events',
-    year: '2025',
-    location: 'Jakarta',
-    client: 'Powerade ID',
+    title: 'Darlene Graduation Photoshoot',
+    subtitle: 'UNSRAT April 2026 Graduation',
+    category: 'Graduation',
+    year: '2026',
+    location: 'Manado',
+    client: 'Darlene',
     cover: 'https://picsum.photos/seed/pf1/900/700',
     photos: [
       { src: 'https://picsum.photos/seed/pf1a/1200/800', caption: 'Opening Shot' },

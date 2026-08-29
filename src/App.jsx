@@ -6,14 +6,12 @@ import 'lenis/dist/lenis.css';
 
 // Components
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor';
 import Preloader from './components/Preloader';
 
 // Pages
 import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
-import Events from './pages/Events';
 import About from './pages/About';
 import Contact from './pages/Contact';
 
@@ -92,15 +90,11 @@ export default function App() {
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<Home />} />
                 <Route path="/portfolio" element={<Portfolio />} />
-                <Route path="/events" element={<Events />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
               </Routes>
             </AnimatePresence>
           </main>
-
-          {/* Footer Section */}
-          <Footer />
         </div>
       </ReactLenis>
     </>
