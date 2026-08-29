@@ -21,6 +21,11 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf1c/1200/800', caption: 'Final Sprint' },
       { src: 'https://picsum.photos/seed/pf1d/1200/800', caption: 'Team Huddle' },
     ],
+    team: [
+      { id: 't1a', name: 'Rangga Pratama', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=12' },
+      { id: 't1b', name: 'Sinta Wulandari', role: 'Videographer', avatar: 'https://i.pravatar.cc/100?img=47' },
+      { id: 't1c', name: 'Kevin Manoppo', role: 'Assistant', initials: 'KM' },
+    ],
   },
   {
     id: 2,
@@ -35,6 +40,12 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf2a/1200/800', caption: 'Crowd Entrance' },
       { src: 'https://picsum.photos/seed/pf2b/1200/800', caption: 'Stage Setup' },
       { src: 'https://picsum.photos/seed/pf2c/1200/800', caption: 'Fan Reactions' },
+    ],
+    team: [
+      { id: 't2a', name: 'Michael Tan', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=33' },
+      { id: 't2b', name: 'Alya Ramadhani', role: 'Event Coordinator', initials: 'AR' },
+      { id: 't2c', name: 'Bagas Wicaksono', role: 'Drone Operator', avatar: 'https://i.pravatar.cc/100?img=15' },
+      { id: 't2d', name: 'Nadia Kusuma', role: 'Videographer', initials: 'NK' },
     ],
   },
   {
@@ -53,6 +64,10 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf3d/1200/800', caption: 'Graduation Toast' },
       { src: 'https://picsum.photos/seed/pf3e/1200/800', caption: 'Group Portrait' },
     ],
+    team: [
+      { id: 't3a', name: 'Rangga Pratama', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=12' },
+      { id: 't3b', name: 'Kevin Manoppo', role: 'Assistant', initials: 'KM' },
+    ],
   },
   {
     id: 4,
@@ -66,6 +81,10 @@ const portfolioData = [
     photos: [
       { src: 'https://picsum.photos/seed/pf4a/1200/800', caption: 'Court Side' },
       { src: 'https://picsum.photos/seed/pf4b/1200/800', caption: 'Spin' },
+    ],
+    team: [
+      { id: 't4a', name: 'Michael Tan', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=33' },
+      { id: 't4b', name: 'Bagas Wicaksono', role: 'Drone Operator', avatar: 'https://i.pravatar.cc/100?img=15' },
     ],
   },
   {
@@ -82,6 +101,10 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf5b/1200/800', caption: 'Sound Wave' },
       { src: 'https://picsum.photos/seed/pf5c/1200/800', caption: 'Studio Session' },
     ],
+    team: [
+      { id: 't5a', name: 'Sinta Wulandari', role: 'Videographer', avatar: 'https://i.pravatar.cc/100?img=47' },
+      { id: 't5b', name: 'Nadia Kusuma', role: 'Editor', initials: 'NK' },
+    ],
   },
   {
     id: 6,
@@ -96,11 +119,68 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf6a/1200/800', caption: 'Office Portrait' },
       { src: 'https://picsum.photos/seed/pf6b/1200/800', caption: 'City Backdrop' },
     ],
+    team: [
+      { id: 't6a', name: 'Rangga Pratama', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=12' },
+      { id: 't6b', name: 'Alya Ramadhani', role: 'Event Coordinator', initials: 'AR' },
+      { id: 't6c', name: 'Kevin Manoppo', role: 'Assistant', initials: 'KM' },
+    ],
   },
 ];
 
 // Spring config bergaya Apple: cepat menuju target tapi ada sedikit "settle" halus di akhir
 const APPLE_SPRING = { type: 'spring', stiffness: 260, damping: 32, mass: 0.9 };
+
+// =============================================
+// TEAM AVATAR STACK — avatar saling menumpuk, hover muncul tooltip nama + peran
+// =============================================
+function TeamStack({ team }) {
+  const [hoveredId, setHoveredId] = useState(null);
+
+  if (!team || team.length === 0) return null;
+
+  return (
+    <div className="flex items-center">
+      {team.map((member, i) => (
+        <div
+          key={member.id}
+          className={`relative ${i > 0 ? '-ml-3' : ''}`}
+          style={{ zIndex: hoveredId === member.id ? 50 : team.length - i }}
+          onMouseEnter={() => setHoveredId(member.id)}
+          onMouseLeave={() => setHoveredId(null)}
+        >
+          {/* TOOLTIP */}
+          <AnimatePresence>
+            {hoveredId === member.id && (
+              <motion.div
+                initial={{ opacity: 0, y: 6, scale: 0.92 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.92 }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
+                className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-neutral-900 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg pointer-events-none"
+              >
+                {member.name}
+                <span className="block text-[10px] font-normal text-white/60 text-center leading-tight mt-0.5">
+                  {member.role}
+                </span>
+                {/* Arrow kecil di bawah tooltip */}
+                <span className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-neutral-900 rotate-45 -mt-1" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* AVATAR */}
+          <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden bg-neutral-800 flex items-center justify-center text-white text-[10px] font-bold shadow-sm hover:scale-105 transition-transform duration-200 cursor-default">
+            {member.avatar ? (
+              <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+            ) : (
+              member.initials
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // =============================================
 // COVERFLOW CAROUSEL — smooth spring + blur depth + drag/swipe
@@ -117,7 +197,7 @@ function CoverflowCarousel({ photos, activeIndex, setActiveIndex }) {
 
   return (
     <div
-      className="relative w-full h-[38vh] md:h-[42vh] flex items-center justify-center overflow-hidden select-none"
+      className="relative w-full h-[26vh] md:h-[32vh] flex items-center justify-center overflow-hidden select-none"
       style={{ perspective: 1200 }}
     >
       {photos.map((photo, i) => {
@@ -192,7 +272,7 @@ function ProjectModal({ project, onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
+      className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-3 md:p-6"
       onClick={onClose}
     >
       <motion.div
@@ -201,27 +281,27 @@ function ProjectModal({ project, onClose }) {
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl border border-neutral-200 shadow-2xl"
+        className="relative w-full max-w-4xl max-h-[94vh] overflow-y-auto bg-white rounded-2xl border border-neutral-200 shadow-2xl"
       >
         <button
           onClick={onClose}
           aria-label="Tutup"
-          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 flex items-center justify-center text-neutral-700 transition-colors"
+          className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 flex items-center justify-center text-neutral-700 transition-colors"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        <div className="pt-8 pb-2 px-6 md:px-10 text-center">
+        <div className="pt-6 pb-1 px-6 md:px-10 text-center">
           <span className="text-neutral-400 text-[11px] font-mono uppercase tracking-widest">
             {project.category}
           </span>
-          <h2 className="text-neutral-900 text-2xl md:text-3xl font-bold uppercase mt-1">
+          <h2 className="text-neutral-900 text-xl md:text-2xl font-bold uppercase mt-1">
             {project.title}
           </h2>
           <p className="text-neutral-500 text-sm mt-1">{project.subtitle}</p>
         </div>
 
-        <div className="relative mt-2">
+        <div className="relative mt-5">
           <CoverflowCarousel
             photos={project.photos}
             activeIndex={activeIndex}
@@ -244,7 +324,7 @@ function ProjectModal({ project, onClose }) {
           </button>
         </div>
 
-        <div className="text-center pt-3">
+        <div className="text-center pt-2">
           <AnimatePresence mode="wait">
             <motion.p
               key={activePhoto.caption}
@@ -252,17 +332,17 @@ function ProjectModal({ project, onClose }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.25 }}
-              className="text-neutral-900 font-medium text-sm md:text-base"
+              className="text-neutral-900 font-medium text-sm"
             >
               {activePhoto.caption}
             </motion.p>
           </AnimatePresence>
-          <span className="text-neutral-400 text-xs font-mono mt-1 block">
+          <span className="text-neutral-400 text-[11px] font-mono mt-0.5 block">
             {String(activeIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </span>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-6 md:gap-10 mt-5 mb-6 px-6 py-5 border-t border-neutral-200 text-xs font-mono uppercase tracking-widest text-neutral-500">
+        <div className="flex flex-wrap justify-center gap-6 md:gap-10 mt-6 px-6 py-4 border-t border-neutral-200 text-xs font-mono uppercase tracking-widest text-neutral-500">
           <div className="text-center">
             <p className="text-neutral-400 mb-1">Year</p>
             <p className="text-neutral-900">{project.year}</p>
@@ -278,6 +358,14 @@ function ProjectModal({ project, onClose }) {
             <p className="text-neutral-900">{project.location}</p>
           </div>
         </div>
+
+        {/* TEAM SECTION — siapa saja yang berkontribusi di project ini */}
+        {project.team && project.team.length > 0 && (
+          <div className="flex flex-col items-center gap-2.5 px-6 pt-4 pb-6 border-t border-neutral-200">
+            <p className="text-neutral-400 text-[11px] font-mono uppercase tracking-widest">Team</p>
+            <TeamStack team={project.team} />
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
