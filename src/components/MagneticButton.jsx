@@ -13,7 +13,7 @@ export default function MagneticButton({ children, className = '', onClick, ...p
       // Center of the button
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      
+
       // Distance from mouse to center
       const x = e.clientX - centerX;
       const y = e.clientY - centerY;
@@ -47,13 +47,15 @@ export default function MagneticButton({ children, className = '', onClick, ...p
   }, []);
 
   return (
-    <div
-      ref={buttonRef}
-      className={`inline-block select-none ${className}`}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
+    // Div ini CUMA buat transform magnetic-nya — sengaja nggak dikasih
+    // rounded/border/bg di sini. Kalau border-radius + background transition
+    // + transform GSAP numpuk di elemen yang sama, browser suka bocor di
+    // pojok pas lagi animasi (itu penyebab splotch ungu di pojok lingkaran).
+    <div ref={buttonRef} className="inline-block select-none" onClick={onClick} {...props}>
+      {/* Div ini yang beneran kelihatan (rounded, border, bg-transition dari
+         className yang dioper caller) — nggak langsung kena transform tiap
+         frame, jadi rounded-corner-nya render bersih */}
+      <div className={className}>{children}</div>
     </div>
   );
 }
