@@ -130,16 +130,14 @@ export default function TeamIDCards() {
   return (
     <section className="relative w-full bg-bgPrimary py-24 md:py-32 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <div className="mb-16 flex items-end justify-between border-b border-textPrimary/10 pb-6">
-          <div>
-            <span className="text-accentSecondary text-xs uppercase font-mono tracking-widest">
-              // Backstage Pass
-            </span>
-            <h2 className="font-syne text-3xl md:text-5xl font-extrabold uppercase text-textPrimary mt-2">
-              The Creative Crew<span className="text-accentPrimary">.</span>
-            </h2>
-          </div>
-          <span className="hidden md:inline text-textSecondary/50 font-mono text-xs uppercase tracking-widest">
+        <div className="mb-16 flex flex-col items-center text-center border-b border-textPrimary/10 pb-8">
+          <span className="text-accentSecondary text-xs uppercase font-mono tracking-widest">
+            // Backstage Pass
+          </span>
+          <h2 className="font-syne text-3xl md:text-5xl font-extrabold uppercase text-textPrimary mt-2">
+            Meet Our Team<span className="text-accentPrimary">.</span>
+          </h2>
+          <span className="text-textSecondary/50 font-mono text-xs uppercase tracking-widest mt-3">
             ID · Access All Areas
           </span>
         </div>
