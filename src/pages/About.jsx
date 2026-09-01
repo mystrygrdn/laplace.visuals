@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import gsap from 'gsap';
 import TeamIDCards from '../components/TeamIDCards';
+import { teamData } from '../data/team';
 
 const pageTransition = {
   initial: { opacity: 0, y: 20 },
@@ -8,132 +10,90 @@ const pageTransition = {
   exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: 'easeIn' } }
 };
 
-// manual-lens barrel ring with aperture-scale tick marks
-function LensRing({ className }) {
-  const ticks = Array.from({ length: 48 });
-  return (
-    <svg viewBox="0 0 400 400" className={className}>
-      <circle cx="200" cy="200" r="188" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-      {ticks.map((_, i) => {
-        const angle = (360 / ticks.length) * i;
-        const isMajor = i % 4 === 0;
-        return (
-          <line
-            key={i}
-            x1="200"
-            y1={isMajor ? 10 : 16}
-            x2="200"
-            y2="24"
-            stroke="currentColor"
-            strokeWidth={isMajor ? 1.5 : 1}
-            opacity={isMajor ? 0.65 : 0.3}
-            transform={`rotate(${angle} 200 200)`}
-          />
-        );
-      })}
-      <circle cx="200" cy="200" r="120" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.25" />
-    </svg>
-  );
-}
+const TILTS = [-2, 1.5, -1, 2, -1.5, 1];
 
-// real typewriter effect — types the headline out character by character
-function useTypewriter(text, { speed = 55, startDelay = 500 } = {}) {
-  const [count, setCount] = React.useState(0);
-
-  React.useEffect(() => {
-    let raf;
-    const start = setTimeout(function tick() {
-      setCount((c) => {
-        const next = c + 1;
-        if (next < text.length) raf = setTimeout(tick, speed);
-        return next;
-      });
-    }, startDelay);
-    return () => {
-      clearTimeout(start);
-      clearTimeout(raf);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+function useClock() {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const format = () =>
+      new Date().toLocaleTimeString('en-GB', { hour12: false });
+    setTime(format());
+    const id = setInterval(() => setTime(format()), 1000);
+    return () => clearInterval(id);
   }, []);
-
-  return { typed: text.slice(0, count), done: count >= text.length };
+  return time;
 }
-
-const HEADLINE = 'BEHIND\nLAPLACE';
 
 function Hero() {
-  const { typed, done } = useTypewriter(HEADLINE, { speed: 55, startDelay: 500 });
+  const trackRef = useRef(null);
+  const time = useClock();
+  const photos = [...teamData, ...teamData];
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      // filmstrip scrolls left forever, seamless because the list is duplicated
+      gsap.to(trackRef.current, {
+        xPercent: -50,
+        duration: 32,
+        ease: 'none',
+        repeat: -1
+      });
+
+      // entrance
+      gsap.fromTo(
+        '.hero-enter',
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: 'power3.out' }
+      );
+    });
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section className="relative w-full min-h-[80vh] md:min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-bgPrimary px-6 pt-36 md:pt-44 pb-16">
-      {/* soft vignette */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(0,0,0,0.06),transparent_60%)]" />
+    <section className="relative w-full min-h-[92vh] md:min-h-screen bg-bgPrimary overflow-hidden flex flex-col pt-36 md:pt-44 pb-8">
+      {/* soft purple accent, confined to the top corners so it fades out well
+          before the bottom of the section — no hard seam against the white
+          section below anymore */}
+      <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 md:w-96 md:h-96 bg-accentPrimary/15 blur-[110px] rounded-full z-0" />
+      <div className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 md:w-96 md:h-96 bg-accentPrimary/15 blur-[110px] rounded-full z-0" />
 
-      {/* calm concentric rings */}
-      <motion.div
-        className="absolute w-[380px] h-[380px] md:w-[560px] md:h-[560px] text-accentPrimary/25"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 90, repeat: Infinity, ease: 'linear' }}
-      >
-        <LensRing className="w-full h-full" />
-      </motion.div>
-      <motion.div
-        className="absolute w-[260px] h-[260px] md:w-[380px] md:h-[380px] rounded-full border border-textPrimary/10"
-        animate={{ rotate: -360 }}
-        transition={{ duration: 70, repeat: Infinity, ease: 'linear' }}
-      />
+      {/* headline — static chrome-lite gradient, no moving highlight */}
+      <div className="hero-enter relative z-20 px-6 text-center">
+        <h1 className="font-syne font-black uppercase leading-none text-6xl sm:text-7xl md:text-8xl lg:text-9xl bg-gradient-to-b from-neutral-900 via-neutral-700 to-neutral-500 bg-clip-text text-transparent">
+          Behind Laplace
+        </h1>
+      </div>
 
-      {/* stamp badge — sits safely below the nav now */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.7, rotate: -8 }}
-        animate={{ opacity: 1, scale: 1, rotate: -8 }}
-        transition={{ duration: 0.5, delay: 1.3 }}
-        className="hidden md:flex absolute top-16 lg:top-20 right-[14%] lg:right-[20%] w-20 h-20 rounded-full border border-dashed border-accentSecondary/50 items-center justify-center text-center z-10"
-      >
-        <span className="font-mono text-[9px] uppercase tracking-widest text-accentSecondary leading-tight">
-          Est.
-          <br />
-          2020
-        </span>
-      </motion.div>
+      {/* filmstrip of crew / behind-the-scenes photos, scrolling forever */}
+      <div className="hero-enter relative z-20 mt-14 md:mt-16 overflow-hidden">
+        <div ref={trackRef} className="flex w-max gap-3 md:gap-5 px-6">
+          {photos.map((member, i) => (
+            <div
+              key={`${member.id}-${i}`}
+              className="w-40 h-52 sm:w-52 sm:h-64 md:w-64 md:h-80 shrink-0 overflow-hidden rounded-sm shadow-2xl"
+              style={{ transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}
+            >
+              <img
+                src={member.image}
+                alt={member.name}
+                draggable={false}
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* typewriter headline */}
-      <h1
-        style={{ whiteSpace: 'pre-line' }}
-        className="relative z-10 text-center font-syne font-black uppercase leading-[0.88] text-textPrimary text-6xl sm:text-7xl md:text-[7.5rem]"
-      >
-        {typed}
-        <motion.span
-          className="inline-block w-[0.06em] h-[0.75em] bg-accentPrimary ml-1 align-middle"
-          animate={{ opacity: [1, 0, 1] }}
-          transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
-        />
-        {done && <span className="text-accentPrimary">.</span>}
-      </h1>
-
-      {/* highlight underline, reveals once typing is done */}
-      {done && (
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-          className="relative z-10 h-2.5 md:h-3 w-44 md:w-64 bg-accentPrimary/20 mt-3 origin-left"
-        />
-      )}
-
-      {/* philosophy, appears once the headline finishes typing */}
-      {done && (
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="relative z-10 max-w-xl text-center text-textSecondary text-base md:text-lg font-light leading-relaxed mt-8"
-        >
-          We don't shoot subjects — we write{' '}
-          <span className="font-serif italic text-accentSecondary">visual essays</span> in silver halide. A
-          collective of image makers, light shapers, and editors, raw and unposed since 2020.
-        </motion.p>
-      )}
+      {/* bottom info bar */}
+      <div className="hero-enter relative z-20 mt-auto pt-10 px-6 md:px-12 flex items-end justify-between gap-6">
+        <span className="font-mono text-xs text-textSecondary/60 uppercase tracking-widest">Est. 2026</span>
+        <p className="hidden md:block max-w-md text-center text-textSecondary text-sm md:text-base font-light leading-relaxed">
+          We are a collective of image makers, light shapers, and editors — writing raw, unposed visual
+          essays in silver halide.
+        </p>
+        <span className="font-mono text-xs text-textSecondary/60 tracking-widest tabular-nums">{time}</span>
+      </div>
     </section>
   );
 }
