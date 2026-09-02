@@ -1,61 +1,60 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, ArrowUpDown } from 'lucide-react';
+import { teamData } from '../data/team';
 
 // =============================================
 // DUMMY DATA
+// `date` pakai format ISO "YYYY-MM-DD" biar bisa langsung di-sort / new Date().
+// `team` konsisten array of { id, role? } — id nunjuk ke teamData (nama & foto
+// selalu dari sana), role opsional buat override role khusus di project ini.
 // =============================================
 const portfolioData = [
   {
     id: 1,
     title: "Darlene’s Graduation",
-    subtitle: "UNSRAT Graduation Session • April 2026",
+    subtitle: "UNSRAT Graduation Session",
     category: "Graduation",
-    year: "2026",
+    date: "2026-04-20",
     location: "Manado",
     client: "Darlene",
-    cover: 'https://picsum.photos/seed/pf1/900/700',
+    cover: 'src/assets/graduationpics/darlene4.webp',
     photos: [
-      { src: 'https://picsum.photos/seed/pf1a/1200/800', caption: 'Opening Shot' },
-      { src: 'https://picsum.photos/seed/pf1b/1200/800', caption: 'Training Ground' },
-      { src: 'https://picsum.photos/seed/pf1c/1200/800', caption: 'Final Sprint' },
-      { src: 'https://picsum.photos/seed/pf1d/1200/800', caption: 'Team Huddle' },
+      { src: 'src/assets/graduationpics/darlene1.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/darlene2.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/darlene3.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/darlene4.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 't1a', name: 'Rangga Pratama', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=12' },
-      { id: 't1b', name: 'Sinta Wulandari', role: 'Videographer', avatar: 'https://i.pravatar.cc/100?img=47' },
-      { id: 't1c', name: 'Kevin Manoppo', role: 'Assistant', initials: 'KM' },
+      { id: 1 }, // role default: "Founder, Lead Photographer"
+      { id: 2, role: 'Second Shooter' }, // override — biasanya "Camera & Lighting Assistant"
+      { id: 3 },
     ],
   },
   {
     id: 2,
-    title: 'Visa x Wells Fargo',
-    subtitle: 'Fan Fare',
-    category: 'Events',
-    year: '2025',
-    location: 'Bandung',
-    client: 'Visa',
+    title: "Aurora's Graduation",
+    subtitle: "UNSRAT Graduation Session",
+    category: "Graduation",
+    date: "2026-04-20",
+    location: "Manado",
+    client: "Aurora",
     cover: 'https://picsum.photos/seed/pf2/900/700',
     photos: [
       { src: 'https://picsum.photos/seed/pf2a/1200/800', caption: 'Crowd Entrance' },
       { src: 'https://picsum.photos/seed/pf2b/1200/800', caption: 'Stage Setup' },
       { src: 'https://picsum.photos/seed/pf2c/1200/800', caption: 'Fan Reactions' },
     ],
-    team: [
-      { id: 't2a', name: 'Michael Tan', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=33' },
-      { id: 't2b', name: 'Alya Ramadhani', role: 'Event Coordinator', initials: 'AR' },
-      { id: 't2c', name: 'Bagas Wicaksono', role: 'Drone Operator', avatar: 'https://i.pravatar.cc/100?img=15' },
-      { id: 't2d', name: 'Nadia Kusuma', role: 'Videographer', initials: 'NK' },
-    ],
+    team: [{ id: 1 }, { id: 4 }],
   },
   {
     id: 3,
-    title: 'Nescafé',
-    subtitle: 'The Third Half',
+    title: "Ivanka's Graduation",
+    subtitle: 'UNSRAT Graduation Session',
     category: 'Graduation',
-    year: '2024',
+    date: '2026-06-18',
     location: 'Manado',
-    client: 'Nescafé ID',
+    client: 'Ivanka',
     cover: 'https://picsum.photos/seed/pf3/900/700',
     photos: [
       { src: 'https://picsum.photos/seed/pf3a/1200/800', caption: 'Morning Brew' },
@@ -64,68 +63,160 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf3d/1200/800', caption: 'Graduation Toast' },
       { src: 'https://picsum.photos/seed/pf3e/1200/800', caption: 'Group Portrait' },
     ],
-    team: [
-      { id: 't3a', name: 'Rangga Pratama', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=12' },
-      { id: 't3b', name: 'Kevin Manoppo', role: 'Assistant', initials: 'KM' },
-    ],
+    team: [{ id: 1 }, { id: 3 }],
   },
   {
     id: 4,
-    title: 'Superbet',
-    subtitle: 'Bet Responsibly',
-    category: 'Events',
-    year: '2026',
-    location: 'Surabaya',
-    client: 'Superbet',
-    cover: 'https://picsum.photos/seed/pf4/900/700',
+    title: "Daniel's Graduation",
+    subtitle: 'UNSRAT Graduation Session',
+    category: 'Graduation',
+    date: '2026-08-21',
+    location: 'Malalayang Beach Walk, Manado',
+    client: 'Daniel',
+    cover: 'src/assets/danielhero.webp',
     photos: [
-      { src: 'https://picsum.photos/seed/pf4a/1200/800', caption: 'Court Side' },
-      { src: 'https://picsum.photos/seed/pf4b/1200/800', caption: 'Spin' },
+      { src: 'src/assets/danielhero.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/daniel1.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/daniel2.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/daniel3.webp', caption: 'Opening Shot' },
     ],
-    team: [
-      { id: 't4a', name: 'Michael Tan', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=33' },
-      { id: 't4b', name: 'Bagas Wicaksono', role: 'Drone Operator', avatar: 'https://i.pravatar.cc/100?img=15' },
-    ],
+    team: [{ id: 2, role: 'Lead Photographer' }, { id: 4 }],
   },
   {
     id: 5,
-    title: 'Harman Kardon',
-    subtitle: 'See / Hear',
+    title: "Shiny's Graduation",
+    subtitle: 'UNSRAT Graduation Session',
     category: 'Graduation',
-    year: '2024',
-    location: 'Yogyakarta',
-    client: 'Harman Kardon',
-    cover: 'https://picsum.photos/seed/pf5/900/700',
+    date: '2026-08-20',
+    location: 'Manado',
+    client: 'Shiny',
+    cover: 'src/assets/graduationpics/shiny1.webp',
     photos: [
-      { src: 'https://picsum.photos/seed/pf5a/1200/800', caption: 'Close Up' },
-      { src: 'https://picsum.photos/seed/pf5b/1200/800', caption: 'Sound Wave' },
-      { src: 'https://picsum.photos/seed/pf5c/1200/800', caption: 'Studio Session' },
+      { src: 'src/assets/graduationpics/shiny1.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/shiny2.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/shiny3.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/shiny4.webp', caption: 'Opening Shot' },
     ],
-    team: [
-      { id: 't5a', name: 'Sinta Wulandari', role: 'Videographer', avatar: 'https://i.pravatar.cc/100?img=47' },
-      { id: 't5b', name: 'Nadia Kusuma', role: 'Editor', initials: 'NK' },
-    ],
+    team: [{ id: 3 }, { id: 4 }],
   },
   {
     id: 6,
-    title: 'Darktrace',
-    subtitle: 'The Defenders',
-    category: 'Events',
-    year: '2026',
-    location: 'Tangerang',
-    client: 'Darktrace',
+    title: "Pranatania's Graduation",
+    subtitle: 'UNSRAT Graduation Session',
+    category: 'Graduation',
+    date: '2026-08-20',
+    location: 'Manado',
+    client: 'Pranatania',
     cover: 'https://picsum.photos/seed/pf6/900/700',
     photos: [
-      { src: 'https://picsum.photos/seed/pf6a/1200/800', caption: 'Office Portrait' },
-      { src: 'https://picsum.photos/seed/pf6b/1200/800', caption: 'City Backdrop' },
+      { src: 'https://picsum.photos/seed/pf6a/1200/800', caption: 'Close Up' },
+      { src: 'https://picsum.photos/seed/pf6b/1200/800', caption: 'Sound Wave' },
+      { src: 'https://picsum.photos/seed/pf6c/1200/800', caption: 'Studio Session' },
     ],
-    team: [
-      { id: 't6a', name: 'Rangga Pratama', role: 'Lead Photographer', avatar: 'https://i.pravatar.cc/100?img=12' },
-      { id: 't6b', name: 'Alya Ramadhani', role: 'Event Coordinator', initials: 'AR' },
-      { id: 't6c', name: 'Kevin Manoppo', role: 'Assistant', initials: 'KM' },
+    team: [{ id: 3 }, { id: 4 }],
+  },
+  {
+    id: 7,
+    title: "Humairah's Graduation",
+    subtitle: 'UNSRAT Graduation Session',
+    category: 'Graduation',
+    date: '2026-08-20',
+    location: 'Manado',
+    client: 'Humairah',
+    cover: 'https://picsum.photos/seed/pf7/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf7a/1200/800', caption: 'Close Up' },
+      { src: 'https://picsum.photos/seed/pf7b/1200/800', caption: 'Sound Wave' },
+      { src: 'https://picsum.photos/seed/pf7c/1200/800', caption: 'Studio Session' },
     ],
+    team: [{ id: 3 }, { id: 4 }],
+  },
+  {
+    id: 8,
+    title: "Aldyth's Graduation",
+    subtitle: 'UNSRAT Graduation Session',
+    category: 'Graduation',
+    date: '2026-08-20',
+    location: 'Manado',
+    client: 'Aldyth',
+    cover: 'src/assets/graduationpics/aldyth1.webp',
+    photos: [
+      { src: 'src/assets/graduationpics/aldyth1.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/aldyth2.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/aldyth3.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/aldyth4.webp', caption: 'Opening Shot' },
+    ],
+    team: [{ id: 3 }, { id: 4 }],
+  },
+  {
+    id: 9,
+    title: "Cintanya's Graduation",
+    subtitle: 'UNSRAT Graduation Session',
+    category: 'Graduation',
+    date: '2026-08-20',
+    location: 'Manado',
+    client: 'Cintanya',
+    cover: 'src/assets/graduationpics/cintanya1.webp',
+    photos: [
+      { src: 'src/assets/graduationpics/cintanya1.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/cintanya2.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/cintanya3.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/graduationpics/cintanya4.webp', caption: 'Opening Shot' },
+    ],
+    team: [{ id: 3 }, { id: 4 }],
+  },
+  {
+    id: 10,
+    title: '2026 Korea Tourism Seminar',
+    subtitle: 'The Defenders',
+    category: 'Events',
+    date: '2026-08-27',
+    location: 'Four Points by Sheraton, Manado',
+    client: 'Darktrace',
+    cover: 'https://picsum.photos/seed/pf9/900/700',
+    photos: [
+      { src: 'https://picsum.photos/seed/pf9a/1200/800', caption: 'Office Portrait' },
+      { src: 'https://picsum.photos/seed/pf9b/1200/800', caption: 'City Backdrop' },
+    ],
+    team: [{id: 1, role: 'Lead Photographer'}, { id: 2, role: 'Assistant Photographer' },],
   },
 ];
+
+// Resolve array of { id, role? } jadi objek lengkap {id, name, image, role}
+// dari teamData. Nama & foto SELALU dari teamData. Role: pakai override kalau
+// diisi di project, kalau enggak fallback ke role default member di teamData.
+function resolveTeam(entries = []) {
+  return entries
+    .map(({ id, role }) => {
+      const member = teamData.find((m) => m.id === id);
+      if (!member) return null;
+      return { ...member, role: role || member.role };
+    })
+    .filter(Boolean);
+}
+
+function getInitials(name = '') {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+// "2026-04-18" -> "April 2026" (dipakai di card & header modal)
+function formatMonthYear(dateStr) {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+// "2026-04-18" -> "18 Apr 2026" (dipakai di detail stat modal, lebih presisi)
+function formatFullDate(dateStr) {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+}
 
 // Spring config bergaya Apple: cepat menuju target tapi ada sedikit "settle" halus di akhir
 const APPLE_SPRING = { type: 'spring', stiffness: 260, damping: 32, mass: 0.9 };
@@ -148,7 +239,7 @@ function TeamStack({ team }) {
           onMouseEnter={() => setHoveredId(member.id)}
           onMouseLeave={() => setHoveredId(null)}
         >
-          {/* TOOLTIP */}
+          {/* TOOLTIP — role di sini per-project (bisa override), bukan role paten */}
           <AnimatePresence>
             {hoveredId === member.id && (
               <motion.div
@@ -162,18 +253,17 @@ function TeamStack({ team }) {
                 <span className="block text-[10px] font-normal text-white/60 text-center leading-tight mt-0.5">
                   {member.role}
                 </span>
-                {/* Arrow kecil di bawah tooltip */}
                 <span className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-neutral-900 rotate-45 -mt-1" />
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* AVATAR */}
+          {/* AVATAR — foto selalu dari teamData */}
           <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden bg-neutral-800 flex items-center justify-center text-white text-[10px] font-bold shadow-sm hover:scale-105 transition-transform duration-200 cursor-default">
-            {member.avatar ? (
-              <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+            {member.image ? (
+              <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
             ) : (
-              member.initials
+              getInitials(member.name)
             )}
           </div>
         </div>
@@ -251,6 +341,7 @@ function CoverflowCarousel({ photos, activeIndex, setActiveIndex }) {
 function ProjectModal({ project, onClose }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const total = project.photos.length;
+  const projectTeam = resolveTeam(project.team);
 
   const handleNext = useCallback(() => setActiveIndex((p) => (p + 1) % total), [total]);
   const handlePrev = useCallback(() => setActiveIndex((p) => (p - 1 + total) % total), [total]);
@@ -293,7 +384,7 @@ function ProjectModal({ project, onClose }) {
 
         <div className="pt-6 pb-1 px-6 md:px-10 text-center">
           <span className="text-neutral-400 text-[11px] font-mono uppercase tracking-widest">
-            {project.category}
+            {project.category} · {formatMonthYear(project.date)}
           </span>
           <h2 className="text-neutral-900 text-xl md:text-2xl font-bold uppercase mt-1">
             {project.title}
@@ -344,8 +435,8 @@ function ProjectModal({ project, onClose }) {
 
         <div className="flex flex-wrap justify-center gap-6 md:gap-10 mt-6 px-6 py-4 border-t border-neutral-200 text-xs font-mono uppercase tracking-widest text-neutral-500">
           <div className="text-center">
-            <p className="text-neutral-400 mb-1">Year</p>
-            <p className="text-neutral-900">{project.year}</p>
+            <p className="text-neutral-400 mb-1">Date</p>
+            <p className="text-neutral-900">{formatFullDate(project.date)}</p>
           </div>
           <div className="text-center">
             <p className="text-neutral-400 mb-1">Client</p>
@@ -359,11 +450,10 @@ function ProjectModal({ project, onClose }) {
           </div>
         </div>
 
-        {/* TEAM SECTION — siapa saja yang berkontribusi di project ini */}
-        {project.team && project.team.length > 0 && (
+        {projectTeam.length > 0 && (
           <div className="flex flex-col items-center gap-2.5 px-6 pt-4 pb-6 border-t border-neutral-200">
             <p className="text-neutral-400 text-[11px] font-mono uppercase tracking-widest">Team</p>
-            <TeamStack team={project.team} />
+            <TeamStack team={projectTeam} />
           </div>
         )}
       </motion.div>
@@ -403,7 +493,7 @@ function PortfolioCard({ item, index, onClick }) {
           {item.title}
         </h3>
         <p className="text-neutral-400 text-[11px] uppercase tracking-widest mt-1 font-mono">
-          {item.subtitle}
+          {item.subtitle} · {formatMonthYear(item.date)}
         </p>
       </div>
     </motion.button>
@@ -416,12 +506,20 @@ function PortfolioCard({ item, index, onClick }) {
 export default function PortfolioGrid() {
   const categories = ['All', 'Graduation', 'Events'];
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
   const [selectedProject, setSelectedProject] = useState(null);
 
-  const filteredItems =
-    selectedCategory === 'All'
-      ? portfolioData
-      : portfolioData.filter((item) => item.category === selectedCategory);
+  const filteredItems = useMemo(() => {
+    const byCategory =
+      selectedCategory === 'All'
+        ? portfolioData
+        : portfolioData.filter((item) => item.category === selectedCategory);
+
+    return [...byCategory].sort((a, b) => {
+      const diff = new Date(a.date) - new Date(b.date);
+      return sortOrder === 'newest' ? -diff : diff;
+    });
+  }, [selectedCategory, sortOrder]);
 
   return (
     <section className="w-full bg-white pt-32 md:pt-40 pb-16 px-6 md:px-10">
@@ -431,20 +529,30 @@ export default function PortfolioGrid() {
             Laplace Archive
           </h2>
 
-          <div className="flex gap-2 bg-neutral-100 p-1.5 rounded-full border border-neutral-200 w-fit">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ${
-                  selectedCategory === cat
-                    ? 'bg-neutral-900 text-white'
-                    : 'text-neutral-500 hover:text-neutral-900'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex gap-2 bg-neutral-100 p-1.5 rounded-full border border-neutral-200 w-fit">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ${
+                    selectedCategory === cat
+                      ? 'bg-neutral-900 text-white'
+                      : 'text-neutral-500 hover:text-neutral-900'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setSortOrder((s) => (s === 'newest' ? 'oldest' : 'newest'))}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-neutral-200 font-bold text-xs uppercase tracking-widest text-neutral-500 hover:text-neutral-900 hover:border-neutral-300 transition-colors"
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+              {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+            </button>
           </div>
         </div>
 
