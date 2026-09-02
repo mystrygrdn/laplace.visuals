@@ -1,13 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+
 import ThreeHeroBg from '../components/ThreeHeroBg';
 import ServiceWordScroll from '../components/Servicewordscroll';
 
-// Framer motion transition animation config
 const pageTransition = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-  exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: 'easeIn' } }
+  initial: {
+    opacity: 0,
+    y: 20,
+  },
+
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: 'easeOut',
+    },
+  },
+
+  exit: {
+    opacity: 0,
+    y: -20,
+    transition: {
+      duration: 0.4,
+      ease: 'easeIn',
+    },
+  },
 };
 
 export default function Home() {
@@ -17,14 +36,25 @@ export default function Home() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="w-full min-h-screen pt-24"
+      className="w-full min-h-screen"
     >
-      {/* HERO SECTION — -mt-24 nge-cancel pt-24 di wrapper atas, biar foto mulai persis dari atas viewport */}
-      <section className="relative -mt-24 overflow-hidden border-b border-white/5">
+      {/* =====================================================
+          HERO
+          
+          Navbar memiliki tinggi 72px.
+          Hero menghitung tinggi:
+          
+          100svh - 72px
+          
+          Jadi Hero tidak tertutup Navbar.
+      ===================================================== */}
+      <div className="pt-[72px]">
         <ThreeHeroBg />
-      </section>
+      </div>
 
-      {/* "WE OFFER" — list layanan yang nyala satu-satu pas discroll, disusul CTA ke portfolio */}
+      {/* =====================================================
+          SERVICES
+      ===================================================== */}
       <ServiceWordScroll
         items={[
           'graduation shoots.',

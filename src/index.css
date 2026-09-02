@@ -1,62 +1,101 @@
 @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Instrument+Serif:ital@1&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 
+
+/* =========================================================
+   THEME
+========================================================= */
+
 @theme {
-  /* ── COLOR PALETTE — WHITE MODE (black / white / purple) ── */
+
+  /* COLORS */
+
   --color-bgPrimary: #FFFFFF;
   --color-bgSecondary: #F2F1F5;
+
   --color-textPrimary: #0B0B0C;
   --color-textSecondary: #6B6870;
+
   --color-accentPrimary: #6D28D9;
   --color-accentSecondary: #A78BFA;
 
-  /* ── FONT SYSTEM ──
-     display : big headlines, hero title, section titles, wordmark ("LAPLACE.")
-               -> tall, condensed, heavy weight. This IS the brand voice.
-     brush   : ONE italic accent phrase per section, max. Never full sentences,
-               never all-caps, never small sizes (min ~20px).
-     sans    : all body paragraphs, descriptions.
-     mono    : nav links, eyebrow tags ("// STUDIO..."), category pills,
-               buttons, metadata (dates, location, "SCROLL").
-  */
+
+  /* FONTS */
+
   --font-display: 'Big Shoulders Display', sans-serif;
   --font-brush: 'Instrument Serif', serif;
   --font-sans: 'Instrument Sans', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 
-  /* ── ANIMATIONS ── */
+
+  /* ANIMATIONS */
+
   --animate-marquee: marquee 20s linear infinite;
 
   @keyframes marquee {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-50%); }
+
+    0% {
+      transform: translateX(0%);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+
   }
+
 }
 
-html, body {
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+html,
+body {
+
   background-color: #FFFFFF;
+
   color: #0B0B0C;
+
   font-family: 'Instrument Sans', sans-serif;
+
   margin: 0;
+
   padding: 0;
+
   overflow-x: hidden;
+
   cursor: none;
+
 }
 
-/* ── BRAND TYPOGRAPHY DEFAULTS ──
-   Apply these so the custom fonts actually take effect instead of
-   falling back to system sans/serif. If you're using Tailwind utility
-   classes (font-display / font-mono / font-sans / font-brush) directly
-   on JSX/HTML elements, these base rules are a safety net. */
 
-h1, h2, h3,
+/* =========================================================
+   HEADINGS
+========================================================= */
+
+h1,
+h2,
+h3,
 .font-display,
 .wordmark {
+
   font-family: var(--font-display);
+
   font-weight: 900;
+
   letter-spacing: -0.01em;
+
   text-transform: uppercase;
+
 }
+
+
+/* =========================================================
+   MONO ELEMENTS
+========================================================= */
 
 nav a,
 .eyebrow,
@@ -65,86 +104,213 @@ button,
 .btn,
 .meta,
 .scroll-label {
+
   font-family: var(--font-mono);
+
   text-transform: uppercase;
+
   letter-spacing: 0.05em;
+
 }
+
+
+/* =========================================================
+   BRUSH / SERIF
+========================================================= */
 
 .font-brush,
 em,
 i {
+
   font-family: var(--font-brush);
+
   font-style: italic;
+
   font-weight: 400;
-  text-transform: none; /* never uppercase this one */
+
+  text-transform: none;
+
 }
 
-p, span, li {
-  font-family: var(--font-sans);
-}
-
-a, button, [role="button"], input, select, textarea {
-  cursor: none;
-}
-
-@media (max-width: 1024px) {
-  html, body, a, button, [role="button"], input, select, textarea {
-    cursor: auto !important;
-  }
-}
-
-::selection {
-  background-color: #6D28D9;
-  color: #FFFFFF;
-}
-
-/* Lenis smooth scroll */
-html.lenis, html.lenis body { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-.lenis.lenis-stopped { overflow: hidden; }
-.lenis.lenis-scrolling iframe { pointer-events: none; }
-
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 0px; }
-
-/* Grain Overlay */
-.grain {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.07;
-  transform: translateZ(0);
-  will-change: opacity;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
 
 /* =========================================================
-   CUSTOM CURSOR — sparkle tunggal dari logo Laplace
-   Selalu berwarna ungu, TANPA ring/lingkaran di belakangnya.
-   Cari blok "/* Custom Cursor */ /*yang lama di index.css kamu,
-   hapus semua isinya (termasuk .custom-cursor-ring dan semua
-   turunannya seperti .hovering / .view-mode / ::after),
-   lalu ganti dengan blok di bawah ini./*
-   ========================================================= */
+   BODY TEXT
+========================================================= */
 
-.custom-cursor {
-  position: fixed;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-accentPrimary, #6D28D9);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 10000;
+p,
+span,
+li {
+
+  font-family: var(--font-sans);
+
 }
 
+
+/* =========================================================
+   INTERACTIVE ELEMENTS
+========================================================= */
+
+a,
+button,
+[role="button"],
+input,
+select,
+textarea {
+
+  cursor: none;
+
+}
+
+
+/* =========================================================
+   TABLET / MOBILE CURSOR
+========================================================= */
+
 @media (max-width: 1024px) {
-  .custom-cursor {
-    display: none !important;
+
+  html,
+  body,
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+
+    cursor: auto !important;
+
   }
+
+}
+
+
+/* =========================================================
+   TEXT SELECTION
+========================================================= */
+
+::selection {
+
+  background-color: #6D28D9;
+
+  color: #FFFFFF;
+
+}
+
+
+/* =========================================================
+   LENIS
+========================================================= */
+
+html.lenis,
+html.lenis body {
+
+  height: auto;
+
+}
+
+.lenis.lenis-smooth {
+
+  scroll-behavior: auto !important;
+
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+
+  overscroll-behavior: contain;
+
+}
+
+.lenis.lenis-stopped {
+
+  overflow: hidden;
+
+}
+
+.lenis.lenis-scrolling iframe {
+
+  pointer-events: none;
+
+}
+
+
+/* =========================================================
+   CUSTOM SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+
+  width: 0px;
+
+}
+
+
+/* =========================================================
+   GRAIN OVERLAY
+========================================================= */
+
+.grain {
+
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  z-index: 9999;
+
+  pointer-events: none;
+
+  opacity: 0.07;
+
+  transform: translateZ(0);
+
+  will-change: opacity;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+
+}
+
+
+/* =========================================================
+   CUSTOM CURSOR
+========================================================= */
+
+.custom-cursor {
+
+  position: fixed;
+
+  width: 18px;
+
+  height: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: var(--color-accentPrimary, #6D28D9);
+
+  transform: translate(-50%, -50%);
+
+  pointer-events: none;
+
+  z-index: 10000;
+
+}
+
+
+@media (max-width: 1024px) {
+
+  .custom-cursor {
+
+    display: none !important;
+
+  }
+
 }
