@@ -4,10 +4,8 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 
 const DEFAULT_ITEMS = [
-  'graduation shoots.',
-  'event coverage.',
-  'studio portraits.',
-  'campaign visuals.',
+  'graduation outdoor photoshoots.',
+  'events.',
 ];
 
 const START_VH = 46;

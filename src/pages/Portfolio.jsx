@@ -26,9 +26,7 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/darlene4.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 1 }, // role default: "Founder, Lead Photographer"
-      { id: 2, role: 'Second Shooter' }, // override — biasanya "Camera & Lighting Assistant"
-      { id: 3 },
+      { id: 1, role: 'Lead Photographer' }
     ],
   },
   {
@@ -45,7 +43,7 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf2b/1200/800', caption: 'Stage Setup' },
       { src: 'https://picsum.photos/seed/pf2c/1200/800', caption: 'Fan Reactions' },
     ],
-    team: [{ id: 1 }, { id: 4 }],
+    team: [{ id: 1, role: 'Lead Photographer' }],
   },
   {
     id: 3,
@@ -63,7 +61,7 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf3d/1200/800', caption: 'Graduation Toast' },
       { src: 'https://picsum.photos/seed/pf3e/1200/800', caption: 'Group Portrait' },
     ],
-    team: [{ id: 1 }, { id: 3 }],
+    team: [{ id: 1, role: 'Lead Photographer' }, { id: 3, role: 'Second Shooter' }],
   },
   {
     id: 4,
@@ -80,7 +78,11 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/daniel2.webp', caption: 'Opening Shot' },
       { src: 'src/assets/graduationpics/daniel3.webp', caption: 'Opening Shot' },
     ],
-    team: [{ id: 2, role: 'Lead Photographer' }, { id: 4 }],
+    team: [
+      { id: 1, role: 'Lead Photographer' }, 
+      { id: 2, role: 'Lighting and Camera Assistant' },
+      { id: 3, role: 'Lighting Assistant' },
+    ],
   },
   {
     id: 5,
@@ -97,7 +99,9 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/shiny3.webp', caption: 'Opening Shot' },
       { src: 'src/assets/graduationpics/shiny4.webp', caption: 'Opening Shot' },
     ],
-    team: [{ id: 3 }, { id: 4 }],
+    team: [
+      { id: 2, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lighting and Camera Assistant' },],
   },
   {
     id: 6,
@@ -107,13 +111,18 @@ const portfolioData = [
     date: '2026-08-20',
     location: 'Manado',
     client: 'Pranatania',
-    cover: 'https://picsum.photos/seed/pf6/900/700',
+    cover: 'src/assets/graduationpics/pranat1.webp',
     photos: [
-      { src: 'https://picsum.photos/seed/pf6a/1200/800', caption: 'Close Up' },
-      { src: 'https://picsum.photos/seed/pf6b/1200/800', caption: 'Sound Wave' },
-      { src: 'https://picsum.photos/seed/pf6c/1200/800', caption: 'Studio Session' },
+      { src: 'src/assets/graduationpics/pranat1.webp', caption: 'Close Up' },
+      { src: 'src/assets/graduationpics/pranat2.webp', caption: 'Sound Wave' },
+      { src: 'src/assets/graduationpics/pranat3.webp', caption: 'Studio Session' },
+      { src: 'src/assets/graduationpics/pranat4.webp', caption: 'Studio Session' },
     ],
-    team: [{ id: 3 }, { id: 4 }],
+    team: [
+      { id: 1, role: 'Lead Photographer' }, 
+      { id: 2, role: 'Lighting and Camera Assistant' },
+      { id: 4, role: 'Lighting Assistant' },
+    ],
   },
   {
     id: 7,
@@ -129,7 +138,12 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf7b/1200/800', caption: 'Sound Wave' },
       { src: 'https://picsum.photos/seed/pf7c/1200/800', caption: 'Studio Session' },
     ],
-    team: [{ id: 3 }, { id: 4 }],
+    team: [
+      { id: 1, role: 'Lead Photographer' }, 
+      { id: 2, role: 'Lighting Assistant' },
+      { id: 3, role: 'Lighting Assistant' },
+      { id: 4, role: 'Lighting Assistant' },
+    ],
   },
   {
     id: 8,
@@ -146,7 +160,11 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/aldyth3.webp', caption: 'Opening Shot' },
       { src: 'src/assets/graduationpics/aldyth4.webp', caption: 'Opening Shot' },
     ],
-    team: [{ id: 3 }, { id: 4 }],
+    team: [
+      { id: 1, role: 'Lead Photographer' }, 
+      { id: 2, role: 'Lighting and Camera Assistant' },
+      { id: 4, role: 'Lighting Assistant' },
+    ],
   },
   {
     id: 9,
@@ -163,22 +181,71 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/cintanya3.webp', caption: 'Opening Shot' },
       { src: 'src/assets/graduationpics/cintanya4.webp', caption: 'Opening Shot' },
     ],
-    team: [{ id: 3 }, { id: 4 }],
+    team: [
+      { id: 1, role: 'Lead Photographer' }, 
+      { id: 2, role: 'Lighting Assistant' },
+    ],
   },
   {
     id: 10,
     title: '2026 Korea Tourism Seminar',
-    subtitle: 'The Defenders',
+    subtitle: 'KTO Manado Seminar',
     category: 'Events',
     date: '2026-08-27',
     location: 'Four Points by Sheraton, Manado',
-    client: 'Darktrace',
+    client: 'Lokodi & KTO',
     cover: 'https://picsum.photos/seed/pf9/900/700',
     photos: [
       { src: 'https://picsum.photos/seed/pf9a/1200/800', caption: 'Office Portrait' },
       { src: 'https://picsum.photos/seed/pf9b/1200/800', caption: 'City Backdrop' },
     ],
-    team: [{id: 1, role: 'Lead Photographer'}, { id: 2, role: 'Assistant Photographer' },],
+    team: [
+      { id: 1, role: 'Lead Photographer' },
+      { id: 2, role: 'Assistant Photographer' },
+    ],
+  },
+  {
+    id: 11,
+    title: 'Munas XVIII HIPMI: Public Lecture',
+    subtitle: 'UNSRAT Public Lecture Session',
+    category: 'Events',
+    date: '2026-05-12',
+    location: 'Sam Ratulangi University, Manado',
+    client: 'BPP HIPMI',
+    cover: 'src/assets/eventspics/hipmi1.webp',
+    photos: [
+      { src: 'src/assets/eventspics/hipmi1.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi2.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi3.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi4.webp', caption: 'Opening Shot' },
+    ],
+    team: [
+      { id: 1, role: 'Lead Photographer' }, 
+    ],
+  },
+  {
+  id: 12, // sesuaikan id di codebase kamu
+  title: 'HIPMI Sulut Regional Conference',
+  subtitle: 'Rakerda, Diklatda & Forbisda 2026',
+  category: 'Events',
+  date: '2026-05-01',
+  location: 'Swiss-Belhotel Maleosan, Manado',
+  client: 'BPD HIPMI Sulut',
+  cover: 'src/assets/eventspics/hipmi6.webp',
+    photos: [
+      { src: 'src/assets/eventspics/hipmi7.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi8.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi9.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi10.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi11.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi12.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi13.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi14.webp', caption: 'Opening Shot' },
+      { src: 'src/assets/eventspics/hipmi15.webp', caption: 'Opening Shot' },
+    ],
+    team: [
+      { id: 1, role: 'Lead Photographer' }, 
+    ],
   },
 ];
 

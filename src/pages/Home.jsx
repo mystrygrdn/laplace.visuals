@@ -57,10 +57,8 @@ export default function Home() {
       ===================================================== */}
       <ServiceWordScroll
         items={[
-          'graduation shoots.',
-          'event coverage.',
-          'studio portraits.',
-          'campaign visuals.',
+          'graduation outdoor photoshoots.',
+          'events.',
         ]}
       />
     </motion.div>
