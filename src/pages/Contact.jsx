@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Phone, Mail } from 'lucide-react';
+import { ArrowUpRight, Phone, Mail, ArrowDown } from 'lucide-react';
 import MagneticButton from '../components/MagneticButton';
 
 // Custom Instagram SVG Icon
@@ -50,6 +50,86 @@ function RevealWords({ text, className }) {
   );
 }
 
+// Jam lokal kecil di pojok hero — detail yang sama kayak di About, biar berasa "live"
+function useClock() {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const format = () => new Date().toLocaleTimeString('en-GB', { hour12: false });
+    setTime(format());
+    const id = setInterval(() => setTime(format()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+// =============================================
+// HERO
+// =============================================
+function ContactHero() {
+  const time = useClock();
+
+  return (
+    <section className="relative w-full overflow-hidden px-6 md:px-12 pt-32 md:pt-40 pb-16 md:pb-24">
+      <div className="relative z-10 max-w-7xl mx-auto w-full">
+        {/* eyebrow + availability badge */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-[#8B5CF6]"
+          >
+            <span className="h-px w-6 bg-[#8B5CF6]/50" />
+            Connection
+          </motion.span>
+
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+            className="inline-flex items-center gap-2 rounded-full border border-black/10 px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest text-black/60"
+          >
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
+            </span>
+            Open for Q4 bookings
+          </motion.span>
+        </div>
+
+        {/* headline besar */}
+        <RevealWords
+          text="Let's Collaborate."
+          className="font-syne font-black uppercase leading-[0.9] tracking-[-0.03em] text-[clamp(3rem,10vw,8.5rem)] text-[#0B0E12]"
+        />
+
+        {/* subtext + jam, sejajar bawah headline */}
+        <div className="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6, ease: 'easeOut' }}
+            className="text-black/60 text-sm md:text-lg max-w-md leading-relaxed font-light"
+          >
+            No complicated forms, no friction. Tap on any of our direct channels to start co-creating your visual legacy.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7, ease: 'easeOut' }}
+            className="flex items-center gap-2 font-mono text-xs text-black/40 shrink-0"
+          >
+            <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+            Pick a channel below
+            <span className="ml-3 tabular-nums">{time}</span>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Contact() {
   const contactLinks = [
     {
@@ -88,34 +168,9 @@ export default function Contact() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="w-full min-h-screen bg-white text-[#0B0E12] pt-32 md:pt-40 pb-12 flex flex-col"
+      className="w-full min-h-screen bg-white text-[#0B0E12] pb-12 flex flex-col"
     >
-      {/* HEADER */}
-      <section className="px-6 md:px-12 max-w-7xl mx-auto w-full mb-16 md:mb-20">
-        <motion.span
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-[#8B5CF6] mb-6"
-        >
-          <span className="h-px w-6 bg-[#8B5CF6]/50" />
-          Connection
-        </motion.span>
-
-        <RevealWords
-          text="Let's Collaborate."
-          className="font-syne font-black uppercase leading-[0.9] tracking-[-0.03em] text-[clamp(2.6rem,8vw,6.5rem)] text-[#0B0E12]"
-        />
-
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.55, ease: 'easeOut' }}
-          className="text-black/60 text-sm md:text-lg max-w-md leading-relaxed mt-6 font-light"
-        >
-          No complicated forms, no friction. Tap on any of our direct channels to start co-creating your visual legacy.
-        </motion.p>
-      </section>
+      <ContactHero />
 
       {/* MASSIVE BUTTONS LIST */}
       <section className="w-full border-t border-black/10 divide-y divide-black/10 flex-1">

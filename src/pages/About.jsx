@@ -49,9 +49,6 @@ function Hero() {
 
   return (
     <section className="relative w-full min-h-[92vh] md:min-h-screen bg-bgPrimary overflow-hidden flex flex-col pt-36 md:pt-44 pb-8">
-      <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 md:w-96 md:h-96 bg-accentPrimary/15 blur-[110px] rounded-full z-0" />
-      <div className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 md:w-96 md:h-96 bg-accentPrimary/15 blur-[110px] rounded-full z-0" />
-
       <div className="hero-enter relative z-20 px-6 text-center">
         <h1 className="font-syne font-black uppercase leading-none text-6xl sm:text-7xl md:text-8xl lg:text-9xl bg-gradient-to-b from-neutral-900 via-neutral-700 to-neutral-500 bg-clip-text text-transparent">
           Behind Laplace
@@ -78,13 +75,20 @@ function Hero() {
         </div>
       </div>
 
-      <div className="hero-enter relative z-20 mt-auto pt-10 px-6 md:px-12 flex items-end justify-between gap-6">
-        <span className="font-mono text-xs text-textSecondary/60 uppercase tracking-widest">Est. 2026</span>
-        <p className="hidden md:block max-w-md text-center text-textSecondary text-sm md:text-base font-light leading-relaxed">
-          We are a collective of image makers, light shapers, and editors — writing raw, unposed visual
-          essays in silver halide.
+      <div className="hero-enter relative z-20 mt-auto pt-10 px-6 md:px-12 flex flex-col md:flex-row md:items-end gap-4 md:gap-70">
+        <span className="font-mono text-xs text-textSecondary/60 uppercase tracking-widest shrink-0">
+          Est. 2026
+        </span>
+        <p className="hidden md:block flex-1 text-center text-textSecondary text-sm md:text-base font-light leading-relaxed">
+          Laplace Visuals is an aesthetic photography studio built around strobist
+          lighting — every frame shaped with off-camera flash, not left to chance.
+          Graduation outdoor sessions are our specialty, but our lens doesn't stop
+          there: from events to full brand campaigns, we're always ready to explore
+          something new.
         </p>
-        <span className="font-mono text-xs text-textSecondary/60 tracking-widest tabular-nums">{time}</span>
+        <span className="font-mono text-xs text-textSecondary/60 tracking-widest tabular-nums shrink-0">
+          {time}
+        </span>
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import heroPhoto from '../assets/danielhero.webp';
@@ -126,8 +127,8 @@ export default function ThreeHeroBg() {
 
       {/* =====================================================
           BOTTOM SHADOW
-          Tetap DI DALAM hero.
-          Tidak keluar menutupi section berikutnya.
+          Stays INSIDE the hero.
+          Does not spill over into the section below.
       ===================================================== */}
       <div
         className="
@@ -198,36 +199,35 @@ export default function ThreeHeroBg() {
             "
           >
             <motion.p
-              initial={{
-                y: 25,
-                opacity: 0,
-              }}
-              animate={{
-                y: 0,
-                opacity: 1,
-              }}
-              transition={{
-                duration: 0.8,
-                delay: 0.55,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="
-                max-w-md
-                font-sans
-                text-sm
-                leading-[1.5]
-                text-white/75
-                md:text-base
-              "
-            >
-              We freeze authentic raw emotion, light,
-              and stories in silver halide. An editorial
-              photography studio with a{' '}
-              <span className="font-brush text-white">
-                Gen-Z edge
-              </span>
-              .
-            </motion.p>
+  initial={{
+    y: 25,
+    opacity: 0,
+  }}
+  animate={{
+    y: 0,
+    opacity: 1,
+  }}
+  transition={{
+    duration: 0.8,
+    delay: 0.55,
+    ease: [0.16, 1, 0.3, 1],
+  }}
+  className="
+    max-w-md
+    font-sans
+    text-sm
+    leading-[1.5]
+    text-white/75
+    md:text-base
+  "
+>
+  Every frame shaped with{' '}
+  <span className="font-brush text-white">
+    strobist light
+  </span>
+  , not left to chance. The result: portraits that feel cinematic, not
+  candid.
+</motion.p>
 
             <motion.div
               initial={{
@@ -251,9 +251,9 @@ export default function ThreeHeroBg() {
                 gap-4
               "
             >
-              {/* EXPLORE BUTTON */}
-              <button
-                type="button"
+              {/* EXPLORE WORK — now links to /portfolio */}
+              <Link
+                to="/portfolio"
                 className="
                   group
                   inline-flex
@@ -300,11 +300,11 @@ export default function ThreeHeroBg() {
                     "
                   />
                 </span>
-              </button>
+              </Link>
 
-              {/* BOOK SESSION */}
-              <a
-                href="/contact"
+              {/* BOOK A SESSION — links to /contact */}
+              <Link
+                to="/contact"
                 className="
                   font-mono
                   text-[11px]
@@ -320,7 +320,7 @@ export default function ThreeHeroBg() {
                 "
               >
                 Book a Session
-              </a>
+              </Link>
             </motion.div>
           </div>
         </div>
