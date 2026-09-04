@@ -6,9 +6,7 @@ import path from 'path';
 // Tiap entry: folder sumber (foto asli) -> folder output (hasil optimasi).
 // Struktur folder di dalamnya akan tetap dipertahankan (subfolder ikut kebawa).
 const SOURCE_MAP = [
-  { source: 'src/assets/eventspicsraw', output: 'src/assets/eventpics' },
-  { source: 'src/assets/graduationpicsraw', output: 'src/assets/graduationpics' },
-  { source: 'src/assets/behindpicsraw', output: 'src/assets/behindpics' },
+  { source: 'src/assets/raws', output: 'src/assets/optimize' },
   // tambahin baris lain sesuai folder-folder yang lo punya
 ];
 
