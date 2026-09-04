@@ -63,6 +63,15 @@ function Lanyard() {
 const TILTS = [-3, 2.5, -2, 3, -2.5, 2];
 const DURATIONS = [5.2, 5.8, 5.4, 6.1, 5.6, 5.9];
 
+// nama panjang (2 kata / banyak karakter) otomatis dikecilin dikit
+// biar tetap muat 1 baris, bukan malah wrap ke 2 baris
+function nameSizeClass(name) {
+  const length = name.length;
+  if (length > 14) return 'text-base sm:text-lg md:text-xl';
+  if (length > 10) return 'text-lg sm:text-xl md:text-2xl';
+  return 'text-xl sm:text-2xl md:text-3xl';
+}
+
 function IDBadge({ member, index }) {
   const tilt = TILTS[index % TILTS.length];
   const duration = DURATIONS[index % DURATIONS.length];
@@ -106,18 +115,24 @@ function IDBadge({ member, index }) {
           className={`absolute top-3 left-1 w-24 h-24 md:w-28 md:h-28 z-10 opacity-90 ${accent}`}
         />
 
-        {/* photo */}
-        <img
-          src={member.image}
-          alt={member.name}
-          draggable={false}
-          loading="lazy"
-          className="absolute top-8 left-7 md:left-8 right-0 bottom-0 w-[calc(100%-1.75rem)] md:w-[calc(100%-2rem)] h-[calc(100%-2rem)] object-cover grayscale z-0"
-        />
+        {/* photo — zoomed in so the subject fills the frame instead of empty background */}
+        <div className="absolute top-8 left-7 md:left-8 right-0 bottom-0 overflow-hidden z-0">
+          <img
+            src={member.image}
+            alt={member.name}
+            draggable={false}
+            loading="lazy"
+            className="w-full h-full object-cover object-center scale-[1.35]"
+          />
+        </div>
 
         {/* name plate */}
         <div className="absolute bottom-0 left-7 md:left-8 right-0 bg-black px-4 py-3 z-20">
-          <p className="font-syne italic font-black text-white text-xl md:text-2xl leading-none">
+          <p
+            className={`font-syne italic font-black text-white leading-none whitespace-nowrap ${nameSizeClass(
+              member.name
+            )}`}
+          >
             {member.name}
           </p>
         </div>

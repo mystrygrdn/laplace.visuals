@@ -43,5 +43,15 @@ export const behindTheScenesPhotos = [
     id: 'bts-09',
     image: 'src/assets/behindpics/behind9.webp',
     alt: 'Film loading close-up'
-  }
+  },
+  {
+    id: 'bts-10',
+    image: 'src/assets/behindpics/behind10.webp',
+    alt: 'Film loading close-up'
+  },
+  {
+    id: 'bts-11',
+    image: 'src/assets/behindpics/behind11.webp',
+    alt: 'Film loading close-up'
+  },
 ];
