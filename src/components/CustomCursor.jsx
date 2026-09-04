@@ -6,6 +6,7 @@ export default function CustomCursor() {
   const sparkleRef = useRef(null);
   const idleRotationTween = useRef(null);
   const [cursorState, setCursorState] = useState('default'); // 'default' | 'hovering' | 'view-mode'
+  const [isHidden, setIsHidden] = useState(false);
 
   useEffect(() => {
     const cursor = cursorRef.current;
@@ -46,6 +47,36 @@ export default function CustomCursor() {
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseover', onMouseOver);
+    };
+  }, []);
+
+  // Sembunyikan cursor custom saat kursor masuk area yang butuh cursor asli
+  // browser (misal iframe video Google Drive di modal portfolio) — di area
+  // itu mousemove tidak pernah sampai ke document utama karena iframe adalah
+  // document terpisah, jadi cursor custom bakal freeze kalau tetap
+  // ditampilkan. VideoEmbed.jsx yang broadcast dua event ini.
+  useEffect(() => {
+    const cursor = cursorRef.current;
+
+    const hide = () => {
+      setIsHidden(true);
+      if (cursor) {
+        gsap.to(cursor, { opacity: 0, duration: 0.15, ease: 'power1.out' });
+      }
+    };
+    const show = () => {
+      setIsHidden(false);
+      if (cursor) {
+        gsap.to(cursor, { opacity: 1, duration: 0.15, ease: 'power1.out' });
+      }
+    };
+
+    window.addEventListener('customcursor:hide', hide);
+    window.addEventListener('customcursor:show', show);
+
+    return () => {
+      window.removeEventListener('customcursor:hide', hide);
+      window.removeEventListener('customcursor:show', show);
     };
   }, []);
 
@@ -95,6 +126,7 @@ export default function CustomCursor() {
       className={`custom-cursor ${cursorState === 'hovering' ? 'hovering' : ''} ${
         cursorState === 'view-mode' ? 'view-mode' : ''
       }`}
+      style={{ pointerEvents: 'none' }}
     >
       <svg
         ref={sparkleRef}

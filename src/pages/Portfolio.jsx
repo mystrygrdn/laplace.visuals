@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, MapPin, ArrowUpDown } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Play } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { teamData } from '../data/team';
 
-// =============================================
-// DUMMY DATA
-// `date` pakai format ISO "YYYY-MM-DD" biar bisa langsung di-sort / new Date().
-// `team` konsisten array of { id, role? } — id nunjuk ke teamData (nama & foto
-// selalu dari sana), role opsional buat override role khusus di project ini.
-// =============================================
 const portfolioData = [
   {
     id: 1,
@@ -79,7 +74,7 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/daniel3.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 1, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lead Photographer' },
       { id: 2, role: 'Lighting and Camera Assistant' },
       { id: 3, role: 'Lighting Assistant' },
     ],
@@ -100,8 +95,9 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/shiny4.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 2, role: 'Lead Photographer' }, 
-      { id: 1, role: 'Lighting and Camera Assistant' },],
+      { id: 2, role: 'Lead Photographer' },
+      { id: 1, role: 'Lighting and Camera Assistant' },
+    ],
   },
   {
     id: 6,
@@ -119,7 +115,7 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/pranat4.webp', caption: 'Studio Session' },
     ],
     team: [
-      { id: 1, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lead Photographer' },
       { id: 2, role: 'Lighting and Camera Assistant' },
       { id: 4, role: 'Lighting Assistant' },
     ],
@@ -139,7 +135,7 @@ const portfolioData = [
       { src: 'https://picsum.photos/seed/pf7c/1200/800', caption: 'Studio Session' },
     ],
     team: [
-      { id: 1, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lead Photographer' },
       { id: 2, role: 'Lighting Assistant' },
       { id: 3, role: 'Lighting Assistant' },
       { id: 4, role: 'Lighting Assistant' },
@@ -161,7 +157,7 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/aldyth4.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 1, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lead Photographer' },
       { id: 2, role: 'Lighting and Camera Assistant' },
       { id: 4, role: 'Lighting Assistant' },
     ],
@@ -182,7 +178,7 @@ const portfolioData = [
       { src: 'src/assets/graduationpics/cintanya4.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 1, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lead Photographer' },
       { id: 2, role: 'Lighting Assistant' },
     ],
   },
@@ -220,18 +216,18 @@ const portfolioData = [
       { src: 'src/assets/eventspics/hipmi4.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 1, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lead Photographer' },
     ],
   },
   {
-  id: 12, // sesuaikan id di codebase kamu
-  title: 'HIPMI Sulut Regional Conference',
-  subtitle: 'Rakerda, Diklatda & Forbisda 2026',
-  category: 'Events',
-  date: '2026-05-01',
-  location: 'Swiss-Belhotel Maleosan, Manado',
-  client: 'BPD HIPMI Sulut',
-  cover: 'src/assets/eventspics/hipmi6.webp',
+    id: 12,
+    title: 'HIPMI Sulut Regional Conference',
+    subtitle: 'Rakerda, Diklatda & Forbisda 2026',
+    category: 'Events',
+    date: '2026-05-01',
+    location: 'Swiss-Belhotel Maleosan, Manado',
+    client: 'BPD HIPMI Sulut',
+    cover: 'src/assets/eventspics/hipmi6.webp',
     photos: [
       { src: 'src/assets/eventspics/hipmi7.webp', caption: 'Opening Shot' },
       { src: 'src/assets/eventspics/hipmi8.webp', caption: 'Opening Shot' },
@@ -244,14 +240,27 @@ const portfolioData = [
       { src: 'src/assets/eventspics/hipmi15.webp', caption: 'Opening Shot' },
     ],
     team: [
-      { id: 1, role: 'Lead Photographer' }, 
+      { id: 1, role: 'Lead Photographer' },
+    ],
+  },
+  {
+    id: 13,
+    type: 'video',
+    title: "Bonifasius & Vallery Engagement Day",
+    subtitle: 'B & V Engagement Highlight',
+    category: 'Videography',
+    date: '2026-08-09',
+    location: 'Bakar Rica Paniki, Manado',
+    client: 'Bonifasius & Vallery',
+    cover: 'src/assets/eventspics/tunangan1.png',
+    coverPosition: '75% 40%', // ⚠️ atur sendiri titik fokusnya kalau masih kepotong (format: "kiri-kanan% atas-bawah%")
+    videoEmbedUrl: 'https://drive.google.com/file/d/1u_B-oFV16JcF6ybnIVK7nz1zYeU8Pngj/preview',
+    team: [
+      { id: 1, role: 'Videographer' },
     ],
   },
 ];
 
-// Resolve array of { id, role? } jadi objek lengkap {id, name, image, role}
-// dari teamData. Nama & foto SELALU dari teamData. Role: pakai override kalau
-// diisi di project, kalau enggak fallback ke role default member di teamData.
 function resolveTeam(entries = []) {
   return entries
     .map(({ id, role }) => {
@@ -271,26 +280,20 @@ function getInitials(name = '') {
     .toUpperCase();
 }
 
-// "2026-04-18" -> "April 2026" (dipakai di card & header modal)
 function formatMonthYear(dateStr) {
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-// "2026-04-18" -> "18 Apr 2026" (dipakai di detail stat modal, lebih presisi)
 function formatFullDate(dateStr) {
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-// Spring config bergaya Apple: cepat menuju target tapi ada sedikit "settle" halus di akhir
 const APPLE_SPRING = { type: 'spring', stiffness: 260, damping: 32, mass: 0.9 };
 
-// =============================================
-// TEAM AVATAR STACK — avatar saling menumpuk, hover muncul tooltip nama + peran
-// =============================================
 function TeamStack({ team }) {
   const [hoveredId, setHoveredId] = useState(null);
 
@@ -306,7 +309,6 @@ function TeamStack({ team }) {
           onMouseEnter={() => setHoveredId(member.id)}
           onMouseLeave={() => setHoveredId(null)}
         >
-          {/* TOOLTIP — role di sini per-project (bisa override), bukan role paten */}
           <AnimatePresence>
             {hoveredId === member.id && (
               <motion.div
@@ -325,7 +327,6 @@ function TeamStack({ team }) {
             )}
           </AnimatePresence>
 
-          {/* AVATAR — foto selalu dari teamData */}
           <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden bg-neutral-800 flex items-center justify-center text-white text-[10px] font-bold shadow-sm hover:scale-105 transition-transform duration-200 cursor-default">
             {member.image ? (
               <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
@@ -339,9 +340,6 @@ function TeamStack({ team }) {
   );
 }
 
-// =============================================
-// COVERFLOW CAROUSEL — smooth spring + blur depth + drag/swipe
-// =============================================
 function CoverflowCarousel({ photos, activeIndex, setActiveIndex }) {
   const total = photos.length;
   const goTo = (i) => setActiveIndex(((i % total) + total) % total);
@@ -402,16 +400,50 @@ function CoverflowCarousel({ photos, activeIndex, setActiveIndex }) {
   );
 }
 
-// =============================================
-// MODAL DETAIL + CAROUSEL (white theme, fit viewport)
-// =============================================
+// Kenapa perlu onMouseEnter/onMouseLeave di sini:
+// Iframe adalah document terpisah dari halaman utama, jadi event mousemove
+// yang dipakai custom cursor TIDAK PERNAH sampai ke document utama selama
+// kursor berada di atas iframe — batasan browser, bukan bug. Fix: broadcast
+// custom event biar CustomCursor tau harus sembunyi & munculin cursor asli
+// browser di area ini.
+function VideoEmbed({ embedUrl, title }) {
+  const handleMouseEnter = () => {
+    window.dispatchEvent(new CustomEvent('customcursor:hide'));
+  };
+  const handleMouseLeave = () => {
+    window.dispatchEvent(new CustomEvent('customcursor:show'));
+  };
+
+  return (
+    <div
+      className="mx-auto w-full max-w-2xl aspect-video max-h-[46vh] rounded-xl overflow-hidden border border-neutral-200 bg-black"
+      style={{ cursor: 'auto' }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <iframe
+        src={embedUrl}
+        title={title}
+        allow="autoplay; fullscreen"
+        allowFullScreen
+        className="w-full h-full"
+      />
+    </div>
+  );
+}
+
 function ProjectModal({ project, onClose }) {
+  const isVideo = project.type === 'video';
   const [activeIndex, setActiveIndex] = useState(0);
-  const total = project.photos.length;
+  const total = isVideo ? 0 : project.photos.length;
   const projectTeam = resolveTeam(project.team);
 
-  const handleNext = useCallback(() => setActiveIndex((p) => (p + 1) % total), [total]);
-  const handlePrev = useCallback(() => setActiveIndex((p) => (p - 1 + total) % total), [total]);
+  const handleNext = useCallback(() => {
+    if (!isVideo) setActiveIndex((p) => (p + 1) % total);
+  }, [isVideo, total]);
+  const handlePrev = useCallback(() => {
+    if (!isVideo) setActiveIndex((p) => (p - 1 + total) % total);
+  }, [isVideo, total]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -423,7 +455,21 @@ function ProjectModal({ project, onClose }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNext, handlePrev, onClose]);
 
-  const activePhoto = project.photos[activeIndex];
+  // Lock scroll halaman di belakang selama modal terbuka. Ini nyetop
+  // scroll native, TAPI project ini pakai Lenis (smooth-scroll berbasis JS)
+  // yang nge-intercept wheel event secara global dan nggak otomatis patuh
+  // ke body.style.overflow — makanya elemen modal-nya sendiri butuh atribut
+  // data-lenis-prevent (lihat di bawah) biar Lenis berhenti nge-hijack
+  // scroll pas kursor ada di atas modal.
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
+  const activePhoto = !isVideo ? project.photos[activeIndex] : null;
 
   return (
     <motion.div
@@ -439,7 +485,9 @@ function ProjectModal({ project, onClose }) {
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
         onClick={(e) => e.stopPropagation()}
+        data-lenis-prevent
         className="relative w-full max-w-4xl max-h-[94vh] overflow-y-auto bg-white rounded-2xl border border-neutral-200 shadow-2xl"
+        style={{ overscrollBehavior: 'contain' }}
       >
         <button
           onClick={onClose}
@@ -459,46 +507,54 @@ function ProjectModal({ project, onClose }) {
           <p className="text-neutral-500 text-sm mt-1">{project.subtitle}</p>
         </div>
 
-        <div className="relative mt-5">
-          <CoverflowCarousel
-            photos={project.photos}
-            activeIndex={activeIndex}
-            setActiveIndex={setActiveIndex}
-          />
+        <div className="relative mt-5 px-6 md:px-10">
+          {isVideo ? (
+            <VideoEmbed embedUrl={project.videoEmbedUrl} title={project.title} />
+          ) : (
+            <>
+              <CoverflowCarousel
+                photos={project.photos}
+                activeIndex={activeIndex}
+                setActiveIndex={setActiveIndex}
+              />
 
-          <button
-            onClick={handlePrev}
-            aria-label="Foto sebelumnya"
-            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white hover:bg-neutral-100 border border-neutral-200 shadow flex items-center justify-center text-neutral-700 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={handleNext}
-            aria-label="Foto berikutnya"
-            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white hover:bg-neutral-100 border border-neutral-200 shadow flex items-center justify-center text-neutral-700 transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+              <button
+                onClick={handlePrev}
+                aria-label="Foto sebelumnya"
+                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white hover:bg-neutral-100 border border-neutral-200 shadow flex items-center justify-center text-neutral-700 transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={handleNext}
+                aria-label="Foto berikutnya"
+                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white hover:bg-neutral-100 border border-neutral-200 shadow flex items-center justify-center text-neutral-700 transition-colors"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
 
-        <div className="text-center pt-2">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={activePhoto.caption}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.25 }}
-              className="text-neutral-900 font-medium text-sm"
-            >
-              {activePhoto.caption}
-            </motion.p>
-          </AnimatePresence>
-          <span className="text-neutral-400 text-[11px] font-mono mt-0.5 block">
-            {String(activeIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-          </span>
-        </div>
+        {!isVideo && (
+          <div className="text-center pt-2">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={activePhoto.caption}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25 }}
+                className="text-neutral-900 font-medium text-sm"
+              >
+                {activePhoto.caption}
+              </motion.p>
+            </AnimatePresence>
+            <span className="text-neutral-400 text-[11px] font-mono mt-0.5 block">
+              {String(activeIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            </span>
+          </div>
+        )}
 
         <div className="flex flex-wrap justify-center gap-6 md:gap-10 mt-6 px-6 py-4 border-t border-neutral-200 text-xs font-mono uppercase tracking-widest text-neutral-500">
           <div className="text-center">
@@ -528,10 +584,9 @@ function ProjectModal({ project, onClose }) {
   );
 }
 
-// =============================================
-// CARD GRID
-// =============================================
 function PortfolioCard({ item, index, onClick }) {
+  const isVideo = item.type === 'video';
+
   return (
     <motion.button
       onClick={onClick}
@@ -547,12 +602,21 @@ function PortfolioCard({ item, index, onClick }) {
           src={item.cover}
           alt={item.title}
           loading="lazy"
+          style={{ objectPosition: item.coverPosition || 'center' }}
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
         <span className="absolute top-3 left-3 font-mono text-[11px] text-white bg-black/50 backdrop-blur px-2 py-0.5 rounded-full tracking-widest">
           [{String(index + 1).padStart(2, '0')}]
         </span>
+
+        {isVideo && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="w-14 h-14 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Play className="w-5 h-5 text-neutral-900 fill-neutral-900 ml-0.5" />
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="pt-4">
@@ -567,13 +631,10 @@ function PortfolioCard({ item, index, onClick }) {
   );
 }
 
-// =============================================
-// MAIN EXPORT
-// =============================================
 export default function PortfolioGrid() {
-  const categories = ['All', 'Graduation', 'Events'];
+  const categories = ['All', 'Graduation', 'Events', 'Videography'];
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
+  const [sortOrder, setSortOrder] = useState('newest');
   const [selectedProject, setSelectedProject] = useState(null);
 
   const filteredItems = useMemo(() => {
