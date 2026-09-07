@@ -72,10 +72,21 @@ function nameSizeClass(name) {
   return 'text-xl sm:text-2xl md:text-3xl';
 }
 
+// Semua foto sekarang sudah di-crop/di-resize konsisten di source-nya, jadi
+// cukup pakai satu setting default yang sama untuk semua member — nggak perlu
+// override per-nama lagi kayak sebelumnya.
+const DEFAULT_FOCUS = { position: '50% 20%', scale: 1.15 };
+
+function getImageFocus() {
+  return DEFAULT_FOCUS;
+}
+
+
 function IDBadge({ member, index }) {
   const tilt = TILTS[index % TILTS.length];
   const duration = DURATIONS[index % DURATIONS.length];
   const accent = index % 2 === 0 ? 'text-accentPrimary' : 'text-accentSecondary';
+  const focus = getImageFocus();
 
   return (
     <motion.div
@@ -122,7 +133,11 @@ function IDBadge({ member, index }) {
             alt={member.name}
             draggable={false}
             loading="lazy"
-            className="w-full h-full object-cover object-center scale-[1.35]"
+            className="w-full h-full object-cover"
+            style={{
+              objectPosition: focus.position,
+              transform: `scale(${focus.scale})`,
+            }}
           />
         </div>
 

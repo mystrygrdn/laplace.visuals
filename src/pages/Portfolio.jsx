@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, MapPin, Play } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Play, Maximize2 } from 'lucide-react';
 import { ArrowUpDown } from 'lucide-react';
 import { teamData } from '../data/team';
 
@@ -164,25 +164,25 @@ const portfolioData = [
       { id: 2, role: 'Lighting Assistant' },
     ],
   },
-  {
-    id: 9,
-    title: '2026 Korea Tourism Seminar',
-    subtitle: 'KTO Manado Seminar',
-    category: 'Events',
-    date: '2026-08-27',
-    location: 'Four Points by Sheraton, Manado',
-    client: 'Lokodi & KTO',
-    cover: 'src/assets/eventspics/kto1.webp',
-    photos: [
-      { src: 'src/assets/eventspics/kto1.webp', caption: 'Office Portrait' },
-      { src: 'src/assets/eventspics/kto2.webp', caption: 'City Backdrop' },
-      { src: 'src/assets/eventspics/kto3.webp', caption: 'City Backdrop' },
-      { src: 'src/assets/eventspics/kto4.webp', caption: 'City Backdrop' },
-    ],
-    team: [
-      { id: 1, role: 'Lead Photographer' },
-      { id: 2, role: 'Assistant Photographer' },
-    ],
+  {    
+    id: 9,    
+    title: '2026 Korea Tourism Seminar',    
+    subtitle: 'KTO Manado Seminar',    
+    category: 'Events',    
+    date: '2026-08-27',    
+    location: 'Four Points by Sheraton, Manado',    
+    client: 'Lokodi & KTO',    
+    cover: 'src/assets/eventspics/kto1.webp',   
+    photos: [      
+      { src: 'src/assets/eventspics/kto1.webp', caption: 'Office Portrait' },      
+      { src: 'src/assets/eventspics/kto2.webp', caption: 'City Backdrop' },      
+      { src: 'src/assets/eventspics/kto3.webp', caption: 'City Backdrop' },      
+      { src: 'src/assets/eventspics/kto4.webp', caption: 'City Backdrop' },    
+    ],    
+    team: [      
+      { id: 1, role: 'Lead Photographer' },      
+      { id: 2, role: 'Assistant Photographer' },    
+    ],  
   },
   {
     id: 10,
@@ -324,7 +324,7 @@ function TeamStack({ team }) {
   );
 }
 
-function CoverflowCarousel({ photos, activeIndex, setActiveIndex }) {
+function CoverflowCarousel({ photos, activeIndex, setActiveIndex, onExpand }) {
   const total = photos.length;
   const goTo = (i) => setActiveIndex(((i % total) + total) % total);
 
@@ -377,10 +377,114 @@ function CoverflowCarousel({ photos, activeIndex, setActiveIndex }) {
               className="w-full h-full object-cover pointer-events-none"
               draggable={false}
             />
+
+            {/* Tombol fullscreen — cuma muncul di foto yang lagi aktif di tengah */}
+            {isActive && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onExpand();
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                aria-label="Lihat foto layar penuh"
+                className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur flex items-center justify-center text-white transition-colors"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+            )}
           </motion.div>
         );
       })}
     </div>
+  );
+}
+
+// Viewer layar penuh — dibuka dari tombol expand di CoverflowCarousel.
+// Dipisah dari ProjectModal, tapi tetap berbagi activeIndex/photos yang sama
+// biar navigasi prev/next-nya sinkron sama posisi carousel di belakangnya.
+function FullscreenViewer({ photo, photos, activeIndex, onNavigate, onClose }) {
+  const total = photos.length;
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') onNavigate(activeIndex + 1);
+      if (e.key === 'ArrowLeft') onNavigate(activeIndex - 1);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeIndex, onNavigate, onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      // z-index sengaja di atas .grain (z-9999 di index.css) biar overlay
+      // noise/tekstur global itu nggak ikut nutupin foto di sini, dan di
+      // atas segala isi modal lain. onClick di backdrop ini juga di-stop
+      // propagation-nya biar klik nggak "nembus" ke backdrop ProjectModal
+      // di belakangnya (yang punya onClick={onClose} sendiri buat nutup
+      // seluruh modal) — tanpa ini, nutup fullscreen ikut nutup modal juga.
+      className="fixed inset-0 z-[10050] bg-black/95 flex items-center justify-center p-4 md:p-10"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
+      data-lenis-prevent
+    >
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        aria-label="Tutup layar penuh"
+        className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      {total > 1 && (
+        <>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate(activeIndex - 1);
+            }}
+            aria-label="Foto sebelumnya"
+            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate(activeIndex + 1);
+            }}
+            aria-label="Foto berikutnya"
+            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={photo.src}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.2 }}
+          src={photo.src}
+          alt={photo.caption}
+          onClick={(e) => e.stopPropagation()}
+          className="max-w-full max-h-full object-contain select-none"
+          draggable={false}
+        />
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -419,25 +523,33 @@ function VideoEmbed({ embedUrl, title }) {
 function ProjectModal({ project, onClose }) {
   const isVideo = project.type === 'video';
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const total = isVideo ? 0 : project.photos.length;
   const projectTeam = resolveTeam(project.team);
 
-  const handleNext = useCallback(() => {
-    if (!isVideo) setActiveIndex((p) => (p + 1) % total);
-  }, [isVideo, total]);
-  const handlePrev = useCallback(() => {
-    if (!isVideo) setActiveIndex((p) => (p - 1 + total) % total);
-  }, [isVideo, total]);
+  const goToIndex = useCallback(
+    (i) => {
+      if (isVideo || total === 0) return;
+      setActiveIndex(((i % total) + total) % total);
+    },
+    [isVideo, total]
+  );
+
+  const handleNext = useCallback(() => goToIndex(activeIndex + 1), [activeIndex, goToIndex]);
+  const handlePrev = useCallback(() => goToIndex(activeIndex - 1), [activeIndex, goToIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Kalau fullscreen viewer lagi kebuka, biarkan dia sendiri yang
+      // nanganin Escape/arrow key (lihat FullscreenViewer), jangan dobel.
+      if (isFullscreen) return;
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowRight') handleNext();
       if (e.key === 'ArrowLeft') handlePrev();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev, onClose]);
+  }, [handleNext, handlePrev, onClose, isFullscreen]);
 
   // Lock scroll halaman di belakang selama modal terbuka. Ini nyetop
   // scroll native, TAPI project ini pakai Lenis (smooth-scroll berbasis JS)
@@ -500,6 +612,7 @@ function ProjectModal({ project, onClose }) {
                 photos={project.photos}
                 activeIndex={activeIndex}
                 setActiveIndex={setActiveIndex}
+                onExpand={() => setIsFullscreen(true)}
               />
 
               <button
@@ -564,6 +677,18 @@ function ProjectModal({ project, onClose }) {
           </div>
         )}
       </motion.div>
+
+      <AnimatePresence>
+        {isFullscreen && !isVideo && (
+          <FullscreenViewer
+            photo={activePhoto}
+            photos={project.photos}
+            activeIndex={activeIndex}
+            onNavigate={goToIndex}
+            onClose={() => setIsFullscreen(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
